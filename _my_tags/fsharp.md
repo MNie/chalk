@@ -1,4 +1,0 @@
----
-slug: fsharp
-name: F#
----

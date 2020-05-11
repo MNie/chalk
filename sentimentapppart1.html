@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>MNie | Creating a fully functional F# microservice (NancyFx, SqlTypeProvider)</title>
+  <meta name="description" content="Recently I realized that I have the data where users evaluate things presented to them. These opinions are stored in the database, but let's be honest how often you open a management studio to see what records appear in the database? I am definitely not that kind of person. So I thought it would be fun to write an application that would sent as a weekly report and also providing an api, to ask for data from the last week. In this article we would take a look at accessing database.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Creating a fully functional F# microservice (NancyFx, SqlTypeProvider)">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://mnie.me/sentimentapppart1">
+  <meta property="og:description" content="Recently I realized that I have the data where users evaluate things presented to them. These opinions are stored in the database, but let's be honest how often you open a management studio to see what records appear in the database? I am definitely not that kind of person. So I thought it would be fun to write an application that would sent as a weekly report and also providing an api, to ask for data from the last week. In this article we would take a look at accessing database.">
+  <meta property="og:site_name" content="MNie">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://mnie.me/sentimentapppart1">
+  <meta name="twitter:title" content="Creating a fully functional F# microservice (NancyFx, SqlTypeProvider)">
+  <meta name="twitter:description" content="Recently I realized that I have the data where users evaluate things presented to them. These opinions are stored in the database, but let's be honest how often you open a management studio to see what records appear in the database? I am definitely not that kind of person. So I thought it would be fun to write an application that would sent as a weekly report and also providing an api, to ask for data from the last week. In this article we would take a look at accessing database.">
+
+  
+    
+      <meta property="og:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+      <meta name="twitter:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+    
+  
+
+  <link href="http://mnie.me/feed.xml" type="application/rss+xml" rel="alternate" title="MNie Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8d94e1b2ced7d843d882416da48ad6b7a0386071412905b6048dbe8205e32559.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-03c296a876e33d932966817b36fde1212bdb044fb0585145cde98ac98da59715.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-52a5e7e150abd939a150d09a93ec31ffd219b9e01c09465a899f36f3654beef1.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="MNie">MNie</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/mnie8" rel="noreferrer noopener" target="_blank" title="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-twitter">
+  <use href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter" xlink:href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/mnie" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://stackoverflow.com/users/2947860" rel="noreferrer noopener" target="_blank" title="Stack Overflow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-stackoverflow">
+  <use href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow" xlink:href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/michał-niegrzybowski" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="mailto:michal.niegrzybowski@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" rel="noreferrer noopener" target="_blank" title="RSS">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-rss">
+  <use href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss" xlink:href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Creating a fully functional F# microservice (NancyFx, SqlTypeProvider)</h1>
+            <p>Recently I realized that I have the data where users evaluate things presented to them. These opinions are stored in the database, but let's be honest how often you open a management studio to see what records appear in the database? I am definitely not that kind of person. So I thought it would be fun to write an application that would sent as a weekly report and also providing an api, to ask for data from the last week. In this article we would take a look at accessing database.</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    March 11, 2017
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      3 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/fsharp" title="See all posts with tag 'F#'">F#</a>
+    
+      
+      <a href="/tag/microservices" title="See all posts with tag 'Microservices'">Microservices</a>
+    
+      
+      <a href="/tag/patterns" title="See all posts with tag 'Patterns'">Patterns</a>
+    
+      
+      <a href="/tag/sql" title="See all posts with tag 'SQL'">SQL</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>Hi,</p>
+
+<p>recently I realized that I have the data where users evaluate things presented to them. These opinions are stored in the database, but let’s be honest how often you open a management studio to see what new records appear in the database? I am definitely not that kind of person. So I thought it would be fun to write an application that will read new data from the database, send them to azure to investigate their “sentiment” (and in some way help me in their analysis), then combined them with an input data and sent as a weekly report and also providing an api, to ask for data from the last week.
+Having experience from daily work with Quartz.net and Nancyfx I thought it would be fun to write an application using precisely these technologies. In addition, I want to use SqlTypeProvider and, of course F#.
+Due to the use of many different libraries, I divide this post to smaller ones.</p>
+
+<p>In this post I want to focus on getting data from the database and make them available as json via endpoint for a user.
+We start by creating a NancyFx project f#, press ctrl + shift + p in visual studio code and select:</p>
+
+<p><img src="https://mnie.github.com/img/11-03-2017SentimentAppPart1/newproject.png" alt="new project" /></p>
+
+<p><img src="https://mnie.github.com/img/11-03-2017SentimentAppPart1/newnancy.png" alt="new nancy" /></p>
+
+<p>Right now we have empty NancyFx project (we have to remember about running Visual Studio Code as an administrator, since NancyFx have to register a port when running).
+So let’s start by extracting data from the database. As I mentioned earlier, we use SqlTypeProvider. We start by adding references to packet.dependencies:
+<script src="https://gist.github.com/MNie/3b0e2e276bf1ebf30c6aeee132889db0.js"></script>
+As you can see we pass an configuration file name and connection string key instead of passing a whole connection string as a parameter.
+Let’s start by creating a new file, which will be responsible for downloading data from the database. The structure of the table in which opinions of users are stored looks as follows:
+<img src="https://mnie.github.com/img/11-03-2017SentimentAppPart1/db.png" alt="db" />
+Let’s start mapping it in code:
+<script src="https://gist.github.com/MNie/df9e0df19870cc3416fdf24f27696d01.js"></script>
+Well, we have a ready structure. We could move on to getting data from the db. We want to extract data just before last week. So we begin with setting schema file:
+<script src="https://gist.github.com/MNie/5c9b24c663eaf85f325f162ca9135dc2.js"></script>
+<script src="https://gist.github.com/MNie/951a6c09c3bd995ba30f731206f563ed.js"></script>
+Pull out the context and set the question
+<script src="https://gist.github.com/MNie/5eac0365760da845b03e2761d3dcbddd.js"></script>
+As we can see query is similar to SQL, so it is self explanatory.
+In the last step we turn mapped to record from the database to a predefined type.</p>
+
+<p>That’s it? So these few lines enough to drag data from a database. Since we want to share this data also in the endpoint, let’s add an action to the nancy module nancy, let’s call it “RawData”
+<script src="https://gist.github.com/MNie/f477e875a279f10c79eeeada5cd5c148.js"></script></p>
+
+<p><img src="https://mnie.github.com/img/11-03-2017SentimentAppPart1/RawData.png" alt="raw data" /></p>
+
+<p>Well it would be enough when it comes to this post in the next post, I want to take care of adding support for Azure api to examine sentiment messages.</p>
+
+<p>To sum up, in just ~10 lines of code written, service gets connection string from a configuration file, connects to the database and pulls data from it. It looks very neat, and above all straight. In my opinion much better than the analogous code written in C#.</p>
+
+<p>Thank you for reading!</p>
+
+<ul>
+  <li><a href="https://github.com/MNie/SentimentNotifier">Source</a></li>
+  <li><a href="https://mnie.github.io/2017-03-11-sentimentAppPart2/">Next post</a></li>
+</ul>
+
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Creating+a+fully+functional+F#+microservice+(NancyFx,+SqlTypeProvider)%20-%20http://mnie.me/sentimentapppart1%20by%20@mnie8" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://mnie.me/sentimentapppart1" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+            <div id="disqus_thread" class="article-comments"></div>
+            <script src="https://chalk-1.disqus.com/embed.js" async defer></script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    2020
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-81299349-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-81299349-1');
+  </script>
+
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

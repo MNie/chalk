@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>MNie | Struggles when migrating from ES 6.8 to ES 7.5</title>
+  <meta name="description" content="What problems I encounter when migrating from ES 6.8 to ES 7.5 and how to avoid them.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Struggles when migrating from ES 6.8 to ES 7.5">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://mnie.me/migratedatafromoneelastictoanother">
+  <meta property="og:description" content="What problems I encounter when migrating from ES 6.8 to ES 7.5 and how to avoid them.">
+  <meta property="og:site_name" content="MNie">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://mnie.me/migratedatafromoneelastictoanother">
+  <meta name="twitter:title" content="Struggles when migrating from ES 6.8 to ES 7.5">
+  <meta name="twitter:description" content="What problems I encounter when migrating from ES 6.8 to ES 7.5 and how to avoid them.">
+
+  
+    
+      <meta property="og:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+      <meta name="twitter:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+    
+  
+
+  <link href="http://mnie.me/feed.xml" type="application/rss+xml" rel="alternate" title="MNie Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8d94e1b2ced7d843d882416da48ad6b7a0386071412905b6048dbe8205e32559.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-03c296a876e33d932966817b36fde1212bdb044fb0585145cde98ac98da59715.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-52a5e7e150abd939a150d09a93ec31ffd219b9e01c09465a899f36f3654beef1.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="MNie">MNie</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/mnie8" rel="noreferrer noopener" target="_blank" title="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-twitter">
+  <use href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter" xlink:href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/mnie" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://stackoverflow.com/users/2947860" rel="noreferrer noopener" target="_blank" title="Stack Overflow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-stackoverflow">
+  <use href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow" xlink:href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/michał-niegrzybowski" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="mailto:michal.niegrzybowski@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" rel="noreferrer noopener" target="_blank" title="RSS">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-rss">
+  <use href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss" xlink:href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Struggles when migrating from ES 6.8 to ES 7.5</h1>
+            <p>What problems I encounter when migrating from ES 6.8 to ES 7.5 and how to avoid them.</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    April 26, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      7 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/fsharp" title="See all posts with tag 'F#'">F#</a>
+    
+      
+      <a href="/tag/elasticsearch" title="See all posts with tag 'ElasticSearch'">ElasticSearch</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>Hi,</p>
+
+<p>in an application that I develop from day to day, I encounter a problem with the migration of data from ES 6.8.2 to ES 7.5.1. The normal attitude in our application would be to run re-indexation, which fetches data from multiple sources and index them in a cluster. But because our application works 24/7 because of clients all around the globe. There were situations that re-indexation fails for some companies, for some reason. Because we want to have an option to react immediately in a situation like that, we decided to write an ad hoc migrator. Which takes data from the old cluster (6.8.2) and “move” them to the new one (7.5.2). Worth noting is also that the new cluster was located on a new server, not the same as the old one.</p>
+
+<p>This isn’t a hard task, but we have to keep in mind that there would be some breaking changes between major releases of ES. Because of that, we decided that the easiest solution would be to create an application that would consist of 2 services. The first one would be responsible for gathering data from old elastic -&gt; mapping them to some DTO -&gt; sending them to the second service. While the second service would receive them, map them, and push them to the new cluster. Sounds easy right? So let’s look at the code.</p>
+
+<p>The structure of a project looks as follows. We have 2 subfolders named <code class="highlighter-rouge">ES6</code> and <code class="highlighter-rouge">ES7</code> which were aligned to the services responsible for gathering/inserting data from/to clusters. We started from a service whose main task was to fetch data. We have here a <code class="highlighter-rouge">Fetcher</code> module:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Fetcher</span> <span class="p">=</span>
+  <span class="k">type</span> <span class="nc">Type</span> <span class="p">=</span>
+    <span class="p">|</span> <span class="nc">Init</span>
+    <span class="p">|</span> <span class="nc">Next</span> <span class="k">of</span> <span class="kt">string</span>
+    <span class="p">|</span> <span class="nc">Last</span>
+
+  <span class="k">let</span> <span class="k">private</span> <span class="n">client</span> <span class="n">conString</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">url</span> <span class="p">=</span> <span class="nc">Uri</span><span class="p">(</span><span class="n">conString</span><span class="p">)</span>
+    <span class="k">let</span> <span class="n">pool</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">SingleNodeConnectionPool</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">let</span> <span class="n">builder</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">ConnectionSettings</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+    <span class="k">let</span> <span class="n">con</span> <span class="p">=</span> <span class="n">builder</span>
+      <span class="p">.</span><span class="nc">ThrowExceptions</span><span class="bp">()</span>
+      <span class="p">.</span><span class="nc">RequestTimeout</span><span class="p">(</span><span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="o">))</span>
+      <span class="p">.</span><span class="nc">MaxRetryTimeout</span><span class="p">(</span><span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">62</span><span class="o">))</span>
+      <span class="p">.</span><span class="nc">MaximumRetries</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+      <span class="p">.</span><span class="nc">EnableHttpCompression</span><span class="bp">()</span>
+      <span class="p">.</span><span class="nc">EnableHttpPipelining</span><span class="p">(</span><span class="bp">false</span><span class="p">)</span>
+      <span class="p">.</span><span class="nc">PrettyJson</span><span class="bp">()</span>
+      <span class="p">.</span><span class="nc">EnableTcpKeepAlive</span><span class="p">(</span><span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="o">),</span> <span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="o">))</span>
+    <span class="nc">ElasticClient</span> <span class="n">con</span>
+
+  <span class="k">let</span> <span class="n">fetchFor</span> <span class="n">conString</span> <span class="n">companyId</span> <span class="n">``type``</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">resolveType</span> <span class="p">(</span><span class="n">docs</span><span class="p">:</span> <span class="nc">IReadOnlyCollection</span><span class="p">&lt;</span><span class="nc">SomeModel</span><span class="o">&gt;)</span> <span class="n">scrollId</span> <span class="p">=</span>
+      <span class="k">if</span> <span class="n">docs</span><span class="p">.</span><span class="nc">Count</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="k">then</span>
+        <span class="nc">Next</span> <span class="n">scrollId</span>
+      <span class="k">else</span> <span class="nc">Last</span>
+
+    <span class="k">match</span> <span class="n">``type``</span> <span class="k">with</span>
+    <span class="p">|</span> <span class="nc">Init</span> <span class="p">-&gt;</span>
+      <span class="n">async</span> <span class="p">{</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">result</span> <span class="p">=</span>
+          <span class="p">(</span><span class="n">client</span> <span class="n">conString</span><span class="p">)</span>
+            <span class="p">.</span><span class="nc">SearchAsync</span><span class="p">&lt;</span><span class="nc">SomeModel</span><span class="o">&gt;(</span>
+              <span class="k">fun</span> <span class="p">(</span><span class="n">s</span><span class="p">:</span><span class="nc">SearchDescriptor</span><span class="p">&lt;</span><span class="nc">SomeModel</span><span class="o">&gt;)</span> <span class="p">-&gt;</span>
+                <span class="k">new</span> <span class="nc">SearchRequest</span><span class="p">(</span>
+                  <span class="nc">Size</span> <span class="p">=</span> <span class="p">(</span><span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="mi">1000</span><span class="o">),</span>
+                  <span class="nc">From</span> <span class="p">=</span> <span class="p">(</span><span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span><span class="mi">0</span><span class="o">),</span>
+                  <span class="nc">Scroll</span> <span class="p">=</span> <span class="nc">Time</span><span class="p">(</span><span class="nn">TimeSpan</span><span class="p">.</span><span class="nc">FromMinutes</span><span class="p">(</span><span class="mi">1</span><span class="o">.)),</span>
+                  <span class="nc">Query</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">QueryContainer</span><span class="p">(</span><span class="n">query</span> <span class="p">=</span> <span class="nc">BoolQuery</span><span class="p">(</span><span class="nc">Should</span> <span class="p">=</span> <span class="p">[</span>
+                    <span class="k">new</span> <span class="nc">QueryContainer</span><span class="p">(</span><span class="n">query</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">TermQuery</span><span class="p">(</span>
+                      <span class="nc">Field</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">Field</span><span class="p">(</span><span class="s2">"companyId"</span><span class="o">),</span> <span class="nc">Value</span> <span class="p">=</span> <span class="n">companyId</span><span class="o">))</span>
+                    <span class="o">])</span>
+                  <span class="p">)</span>
+                <span class="p">)</span> <span class="p">:&gt;</span> <span class="nc">ISearchRequest</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+
+        <span class="k">let</span> <span class="n">t</span> <span class="p">=</span> <span class="n">resolveType</span> <span class="n">result</span><span class="p">.</span><span class="nc">Documents</span> <span class="n">result</span><span class="p">.</span><span class="nc">ScrollId</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="nc">Documents</span><span class="p">)</span>
+      <span class="p">}</span>
+      <span class="p">|</span> <span class="nc">Next</span> <span class="n">scrollId</span> <span class="p">-&gt;</span>
+        <span class="n">async</span> <span class="p">{</span>
+          <span class="k">let</span><span class="o">!</span> <span class="n">result</span> <span class="p">=</span>
+            <span class="p">(</span><span class="n">client</span> <span class="n">conString</span><span class="p">)</span>
+              <span class="p">.</span><span class="nc">ScrollAsync</span><span class="p">&lt;</span><span class="nc">SomeModel</span><span class="o">&gt;(</span><span class="nc">Time</span><span class="p">(</span><span class="nn">TimeSpan</span><span class="p">.</span><span class="nc">FromMinutes</span><span class="p">(</span><span class="mi">1</span><span class="o">.)),</span> <span class="n">scrollId</span><span class="p">)</span>
+              <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+
+          <span class="k">let</span> <span class="n">t</span> <span class="p">=</span> <span class="n">resolveType</span> <span class="n">result</span><span class="p">.</span><span class="nc">Documents</span> <span class="n">result</span><span class="p">.</span><span class="nc">ScrollId</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="nc">Documents</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="p">|</span> <span class="nc">Last</span> <span class="p">-&gt;</span> <span class="n">async</span> <span class="p">{</span> <span class="k">return</span> <span class="p">(</span><span class="nc">Last</span><span class="p">,</span> <span class="k">new</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">SomeModel</span><span class="o">&gt;()</span> <span class="p">:&gt;</span> <span class="nc">IReadOnlyCollection</span><span class="p">&lt;</span><span class="nc">SomeModel</span><span class="o">&gt;)</span> <span class="p">}</span></code></pre></figure>
+
+<p>As we can see above. In case of an initial request, we use a <code class="highlighter-rouge">SearchAsync</code> method, which would return n first records and a <code class="highlighter-rouge">scrollId</code> needed for gathering the next bunch of data.</p>
+
+<p>When we have all the data, we check if we would need another call for data, or it is the last call for them.</p>
+
+<p>If more data needs to be fetched we are using a <code class="highlighter-rouge">ScrollAsync</code> method to which we are passing previously gathered <code class="highlighter-rouge">scrollId</code>.</p>
+
+<p>That’s all for the <code class="highlighter-rouge">Fetcher</code> module. The next one is a module responsible for mapping data to DTO.</p>
+
+<p>But we gonna skip code example here, since it’s a normal mapping without any logic inside. The next <code class="highlighter-rouge">block</code> is a <code class="highlighter-rouge">Migration</code> module.</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="n">run</span> <span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="nc">HttpClient</span><span class="p">)</span> <span class="n">data</span> <span class="p">=</span>
+  <span class="k">let</span> <span class="n">serialized</span> <span class="p">=</span> <span class="nn">JsonConvert</span><span class="p">.</span><span class="nc">SerializeObject</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">async</span> <span class="p">{</span>
+      <span class="k">let</span><span class="o">!</span> <span class="n">result</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">PostAsync</span><span class="p">(</span><span class="s2">"http://someaddress/migration"</span><span class="p">,</span> <span class="k">new</span> <span class="nc">StringContent</span><span class="p">(</span><span class="n">serialized</span><span class="p">,</span> <span class="nn">Text</span><span class="p">.</span><span class="nn">Encoding</span><span class="p">.</span><span class="nc">UTF8</span><span class="p">,</span> <span class="s2">"application/json"</span><span class="o">))</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+      <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="nc">StatusCode</span> <span class="p">=</span> <span class="nn">HttpStatusCode</span><span class="p">.</span><span class="nc">OK</span> <span class="k">then</span>
+        <span class="k">return</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">FSharp</span><span class="p">.</span><span class="nn">Core</span><span class="p">.</span><span class="nn">Result</span><span class="p">.</span><span class="nc">Ok</span> <span class="bp">()</span>
+      <span class="k">else</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">content</span> <span class="p">=</span> <span class="n">result</span><span class="p">.</span><span class="nn">Content</span><span class="p">.</span><span class="nc">ReadAsStringAsync</span><span class="bp">()</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+        <span class="k">return</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">FSharp</span><span class="p">.</span><span class="nn">Core</span><span class="p">.</span><span class="nn">Result</span><span class="p">.</span><span class="nc">Error</span> <span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="p">}</span></code></pre></figure>
+
+<p>Which send mapped data via HTTP to the second service and return error information if there is some. The whole code is combined in an <code class="highlighter-rouge">Application</code> module. As you can see we don’t combine all of the data related to a company, because we could get a couple of thousands/millions records and that could result in some performance issues.</p>
+
+<p>Going to the ES7 service. The first thing we are doing is mapping from a DTO to our <code class="highlighter-rouge">domain</code> model in a <code class="highlighter-rouge">Mapping</code> module.</p>
+
+<p>As previously, there is no logic here, so we gonna skip the borring stuff. Only assigning values to properties/fields. After we are done with the mapping we “send” them to the <code class="highlighter-rouge">Uploader</code> module.</p>
+
+<p>Which is responsible for doing a <code class="highlighter-rouge">bulk</code> operation on an ES cluster and based on a result from a bulk operation, return information to an ES6 service.</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Uploader</span> <span class="p">=</span>
+  <span class="k">let</span> <span class="k">private</span> <span class="n">client</span> <span class="n">conString</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">url</span> <span class="p">=</span> <span class="nc">Uri</span><span class="p">(</span><span class="n">conString</span><span class="p">)</span>
+    <span class="k">use</span> <span class="n">pool</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">SingleNodeConnectionPool</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">let</span> <span class="n">builder</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">ConnectionSettings</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+    <span class="k">let</span> <span class="n">con</span> <span class="p">=</span>
+      <span class="n">builder</span>
+        <span class="p">.</span><span class="nc">ThrowExceptions</span><span class="bp">()</span>
+        <span class="p">.</span><span class="nc">RequestTimeout</span><span class="p">(</span><span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="o">))</span>
+        <span class="p">.</span><span class="nc">MaxRetryTimeout</span><span class="p">(</span><span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">62</span><span class="o">))</span>
+        <span class="p">.</span><span class="nc">MaximumRetries</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">.</span><span class="nc">EnableHttpCompression</span><span class="bp">()</span>
+        <span class="p">.</span><span class="nc">EnableHttpPipelining</span><span class="p">(</span><span class="bp">false</span><span class="p">)</span>
+        <span class="p">.</span><span class="nc">PrettyJson</span><span class="bp">()</span>
+        <span class="p">.</span><span class="nc">EnableTcpKeepAlive</span><span class="p">(</span><span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="o">),</span> <span class="nc">TimeSpan</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="o">))</span>
+        <span class="p">.</span><span class="nc">DefaultIndex</span><span class="p">(</span><span class="s2">"dashboard"</span><span class="p">)</span>
+        <span class="p">.</span><span class="nc">EnableDebugMode</span><span class="bp">()</span>
+    <span class="nc">ElasticClient</span> <span class="n">con</span>
+
+  <span class="k">let</span> <span class="n">upload</span> <span class="n">conString</span> <span class="n">docs</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">toUpload</span> <span class="p">=</span>
+      <span class="n">docs</span>
+        <span class="p">|&gt;</span> <span class="nn">Array</span><span class="p">.</span><span class="n">map</span> <span class="p">(</span>
+          <span class="k">fun</span> <span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nn">ES7</span><span class="p">.</span><span class="nn">Model</span><span class="p">.</span><span class="nc">SomeModel</span><span class="p">)</span> <span class="p">-&gt;</span>
+            <span class="k">let</span> <span class="n">b</span> <span class="p">=</span> <span class="nc">BulkCreateOperation</span><span class="p">&lt;</span><span class="nn">ES7</span><span class="p">.</span><span class="nn">Model</span><span class="p">.</span><span class="nc">SomeModel</span><span class="o">&gt;(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">b</span><span class="p">.</span><span class="nc">Id</span> <span class="p">&lt;-</span> <span class="nc">Id</span><span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="nc">IndexId</span><span class="p">)</span>
+            <span class="n">b</span><span class="p">.</span><span class="nc">RetriesOnConflict</span> <span class="p">&lt;-</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">int</span><span class="o">&gt;(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">b</span> <span class="p">:&gt;</span> <span class="nc">IBulkOperation</span>
+        <span class="p">)</span>
+        <span class="p">|&gt;</span> <span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="k">new</span> <span class="nc">BulkOperationsCollection</span><span class="p">&lt;</span><span class="nc">IBulkOperation</span><span class="o">&gt;(</span><span class="n">x</span><span class="p">)</span>
+      <span class="k">let</span> <span class="n">request</span> <span class="p">=</span> <span class="nc">BulkRequest</span><span class="bp">()</span>
+      <span class="n">request</span><span class="p">.</span><span class="nc">Operations</span> <span class="p">&lt;-</span> <span class="n">toUpload</span>
+      <span class="n">async</span> <span class="p">{</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">result</span> <span class="p">=</span> <span class="p">(</span><span class="n">client</span> <span class="n">conString</span><span class="o">).</span><span class="nc">BulkAsync</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="nc">Errors</span> <span class="k">then</span>
+          <span class="k">return</span> <span class="nc">Some</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="nc">ItemsWithErrors</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="p">(</span><span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">x</span><span class="p">.</span><span class="nn">Error</span><span class="p">.</span><span class="nc">Reason</span><span class="o">))</span>
+        <span class="k">else</span>
+          <span class="k">return</span> <span class="nc">None</span>
+      <span class="p">}</span></code></pre></figure>
+
+<p>To sum up, in a simple way we could write an application that would transmit some data from one to another cluster is fairly time (a couple of seconds for companies with hundreds of thousands of records). Is this a solution I would recommend to anyone? No, there is a build-in snapshot option that would be perfect for such occasion, then we could simply reindex all “companies” only for missing data. Beyond of snapshot option there is also a built-in <a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.8/reindex-upgrade-remote.html">reindex</a>. Also, the reindex application should be stable and shouldn’t fail. But thanks to that small bastard we were able to move data for 2 companies on a production environment in a couple of seconds because the reindex process fails for them ~3 times and a fix could take up to 10-15 minutes to release it.</p>
+
+<p>Thanks for reading!</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Struggles+when+migrating+from+ES+6.8+to+ES+7.5%20-%20http://mnie.me/migratedatafromoneelastictoanother%20by%20@mnie8" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://mnie.me/migratedatafromoneelastictoanother" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+            <div id="disqus_thread" class="article-comments"></div>
+            <script src="https://chalk-1.disqus.com/embed.js" async defer></script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    2020
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-81299349-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-81299349-1');
+  </script>
+
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>MNie | Deleting old branches using Azure Functions</title>
+  <meta name="description" content="Doing a `git branch` lists a milion of branches on a remote? You have some policies in a team to delete branch after merging, but let's be serious, someone remember about that? You don't have to worry in this article you will find how to write automatic Deleter (as a time trigger Azure Function) of old stale branches from AzureDevops.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Deleting old branches using Azure Functions">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://mnie.me/branchdeleter">
+  <meta property="og:description" content="Doing a `git branch` lists a milion of branches on a remote? You have some policies in a team to delete branch after merging, but let's be serious, someone remember about that? You don't have to worry in this article you will find how to write automatic Deleter (as a time trigger Azure Function) of old stale branches from AzureDevops.">
+  <meta property="og:site_name" content="MNie">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://mnie.me/branchdeleter">
+  <meta name="twitter:title" content="Deleting old branches using Azure Functions">
+  <meta name="twitter:description" content="Doing a `git branch` lists a milion of branches on a remote? You have some policies in a team to delete branch after merging, but let's be serious, someone remember about that? You don't have to worry in this article you will find how to write automatic Deleter (as a time trigger Azure Function) of old stale branches from AzureDevops.">
+
+  
+    
+      <meta property="og:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+      <meta name="twitter:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+    
+  
+
+  <link href="http://mnie.me/feed.xml" type="application/rss+xml" rel="alternate" title="MNie Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8d94e1b2ced7d843d882416da48ad6b7a0386071412905b6048dbe8205e32559.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-03c296a876e33d932966817b36fde1212bdb044fb0585145cde98ac98da59715.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-52a5e7e150abd939a150d09a93ec31ffd219b9e01c09465a899f36f3654beef1.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="MNie">MNie</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/mnie8" rel="noreferrer noopener" target="_blank" title="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-twitter">
+  <use href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter" xlink:href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/mnie" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://stackoverflow.com/users/2947860" rel="noreferrer noopener" target="_blank" title="Stack Overflow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-stackoverflow">
+  <use href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow" xlink:href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/michał-niegrzybowski" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="mailto:michal.niegrzybowski@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" rel="noreferrer noopener" target="_blank" title="RSS">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-rss">
+  <use href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss" xlink:href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Deleting old branches using Azure Functions</h1>
+            <p>Doing a `git branch` lists a milion of branches on a remote? You have some policies in a team to delete branch after merging, but let's be serious, someone remember about that? You don't have to worry in this article you will find how to write automatic Deleter (as a time trigger Azure Function) of old stale branches from AzureDevops.</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    September 23, 2019
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      11 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/fsharp" title="See all posts with tag 'F#'">F#</a>
+    
+      
+      <a href="/tag/patterns" title="See all posts with tag 'Patterns'">Patterns</a>
+    
+      
+      <a href="/tag/microservices" title="See all posts with tag 'Microservices'">Microservices</a>
+    
+      
+      <a href="/tag/cleancode" title="See all posts with tag 'Clean Code'">Clean Code</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>Hi,</p>
+
+<p>In every project which I worked, I encounter the same problem. After some time there were a lot of branches on the origin. That causes a not necessary use of space and problems when searching for the right branch. Because of that, I decided to write a utility tool which would fix that issue.</p>
+
+<p>The main purpose of the application was to delete regularly all branches from all projects and repositories in our AzureDevops space. Those branches have to meet the following requirements to be deleted:</p>
+<ul>
+  <li>a branch should be older than 1 month;</li>
+  <li>a branch should not have any open pull requests;</li>
+  <li>the branch name is not equal to test, nor beta, nor release.</li>
+</ul>
+
+<p>One of the requirements was to run the code responsible for deletion periodically. I decided to create an azure function in F# which would be triggered by time. The time when the function would be trigger would be a 6 am every day.</p>
+
+<p>I started by creating an Azure function of type TimeTrigger, but it is not so obvious to create a function like that in F#. First of all, you have to create a TimeTrigger function in C# from Visual Studio Code like that:</p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscodecreate1.png" alt="vscode1" /></p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscodecreate2.png" alt="vscode2" /></p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscodecreate3.png" alt="vscode3" /></p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscodecreate4.png" alt="vscode4" /></p>
+
+<p>Or from Visual Studio like that:</p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscreate1.png" alt="vs1" /></p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscreate2.png" alt="vs2" /></p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/vscreate3.png" alt="vs3" /></p>
+
+<p>Then you have to change an extension of a project file from <code class="highlighter-rouge">.csproj</code> to <code class="highlighter-rouge">.fsproj</code> beyond that, we want to explicitly set the value of <code class="highlighter-rouge">FSharp.Core</code> dependency so we set it to <code class="highlighter-rouge">4.7.0</code>. Next thing is to delete a <code class="highlighter-rouge">.cs</code> file which is not needed here and adds a new <code class="highlighter-rouge">.fs</code> file to the project. Content of this file should look like this:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Runner</span>
+
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Azure</span><span class="p">.</span><span class="nc">WebJobs</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Extensions</span><span class="p">.</span><span class="nc">Logging</span>
+
+    <span class="p">[&lt;</span><span class="nc">FunctionName</span><span class="p">(</span><span class="s2">"BranchDeleter"</span><span class="o">)&gt;]</span>
+    <span class="k">let</span> <span class="n">deleteStaleBranches</span> <span class="o">([&lt;</span><span class="nc">TimerTriggerAttribute</span><span class="p">(</span><span class="s2">"0 0 6 * * *"</span><span class="o">)&gt;]</span><span class="n">myTimer</span><span class="p">:</span> <span class="nc">TimerInfo</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nc">ILogger</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Azure</span><span class="p">.</span><span class="nn">WebJobs</span><span class="p">.</span><span class="nc">ExecutionContext</span><span class="p">)</span> <span class="p">=</span>
+        <span class="bp">()</span></code></pre></figure>
+
+<p>We have a ready empty project, so we could go further, to some logic. Because our repositories are located on AzureDevops I used the following library to get information about projects/pull requests/branches etc.: <code class="highlighter-rouge">Microsoft.TeamFoundationServer.ExtendedClient</code> but if you like the idea it wouldn’t be a problem to switch usage of this library to one that would suit your needs.</p>
+
+<p>After the installation of the library, the first thing to do would be to download all repositories and get all branches for them.</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Configuration</span> <span class="p">=</span>
+
+    <span class="k">type</span> <span class="nc">Config</span> <span class="p">=</span>
+        <span class="p">{</span>
+            <span class="n">repository</span><span class="p">:</span> <span class="kt">string</span>
+            <span class="n">accessToken</span><span class="p">:</span> <span class="kt">string</span>
+            <span class="n">project</span><span class="p">:</span> <span class="kt">string</span>
+        <span class="p">}</span>
+
+<span class="k">module</span> <span class="nc">Deleter</span> <span class="p">=</span>
+
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Extensions</span><span class="p">.</span><span class="nc">Logging</span>
+    <span class="k">open</span> <span class="nc">System</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">TeamFoundation</span><span class="p">.</span><span class="nn">SourceControl</span><span class="p">.</span><span class="nc">WebApi</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">VisualStudio</span><span class="p">.</span><span class="nn">Services</span><span class="p">.</span><span class="nc">Client</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">VisualStudio</span><span class="p">.</span><span class="nn">Services</span><span class="p">.</span><span class="nc">Common</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">VisualStudio</span><span class="p">.</span><span class="nn">Services</span><span class="p">.</span><span class="nc">WebApi</span>
+    <span class="k">open</span> <span class="nn">System</span><span class="p">.</span><span class="nc">Threading</span>
+
+    <span class="k">let</span> <span class="k">private</span> <span class="n">connection</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nn">Configuration</span><span class="p">.</span><span class="nc">Config</span><span class="p">)</span> <span class="p">=</span>
+        <span class="k">let</span> <span class="n">basicCred</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">VssBasicCredential</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">config</span><span class="p">.</span><span class="n">accessToken</span><span class="p">)</span>
+        <span class="k">let</span> <span class="n">creds</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">VssClientCredentials</span><span class="p">(</span><span class="n">basicCred</span><span class="p">)</span>
+
+        <span class="k">new</span> <span class="nc">VssConnection</span><span class="p">(</span><span class="k">new</span> <span class="nc">Uri</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">repository</span><span class="o">),</span> <span class="n">creds</span><span class="p">)</span>
+
+    <span class="k">let</span> <span class="n">run</span> <span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nn">Configuration</span><span class="p">.</span><span class="nc">Config</span><span class="p">)</span> <span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="p">=</span>
+        <span class="k">let</span> <span class="n">conn</span> <span class="p">=</span> <span class="n">connection</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">let</span> <span class="n">client</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="nc">GetClient</span><span class="p">&lt;</span><span class="nc">GitHttpClient</span><span class="o">&gt;()</span>
+        <span class="n">async</span> <span class="p">{</span>
+            <span class="k">let</span><span class="o">!</span> <span class="n">repositories</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetRepositoriesAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="nc">Nullable</span><span class="p">(</span><span class="bp">false</span><span class="o">))</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+        <span class="p">}</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">StartAsTask</span></code></pre></figure>
+
+<p>As you may see the first thing we do here is to create a connection to AzureDevops with all data needed. Then we want to get a git client from the already created connection object. Then in an async block, we could get all repositories via method <code class="highlighter-rouge">GetRepositoriesAsync</code>.</p>
+
+<p>Right now we have all repositories, the next step would be to download all branches for these repositories. Branch information for a repository could be achieved by this method:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nn">Deleter</span>
+    <span class="p">...</span>
+    <span class="n">let</span> <span class="k">private</span> <span class="n">getBranches</span> <span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nn">Configuration</span><span class="p">.</span><span class="nc">Config</span><span class="p">)</span> <span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="nc">GitHttpClient</span><span class="p">)</span> <span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nc">ILogger</span><span class="p">)</span> <span class="p">(</span><span class="n">repo</span><span class="p">:</span> <span class="nc">GitRepository</span><span class="p">)</span> <span class="p">=</span>
+        <span class="n">async</span> <span class="p">{</span>
+            <span class="k">let</span><span class="o">!</span> <span class="n">branches</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetRefsAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="s2">""</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="nn">CancellationToken</span><span class="p">.</span><span class="nc">None</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+            <span class="k">return</span> <span class="n">branches</span>
+        <span class="p">}</span>
+    <span class="o">...</span></code></pre></figure>
+
+<p>So as you may notice we used <code class="highlighter-rouge">GetRefsAsync</code> method to download information about all branches in a single repository. Next thing is to delete all branches in a repository. To delete a branch we have to create a <code class="highlighter-rouge">delete object</code> which should be created concretely:</p>
+<ul>
+  <li><code class="highlighter-rouge">OldObjectId</code> should be set to the actual <code class="highlighter-rouge">ObjectId</code> from ref;</li>
+  <li><code class="highlighter-rouge">NewObjectId</code> should be equal to <code class="highlighter-rouge">00000000</code></li>
+  <li><code class="highlighter-rouge">Name</code> should be set to value from ref;</li>
+  <li><code class="highlighter-rouge">RepositoryId</code> should be equal to repository id.</li>
+</ul>
+
+<p>To proceed with those requirements I wrote the following code:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Creator</span>
+
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">TeamFoundation</span><span class="p">.</span><span class="nn">SourceControl</span><span class="p">.</span><span class="nc">WebApi</span>
+    <span class="k">open</span> <span class="nc">System</span>
+
+    <span class="k">let</span> <span class="n">toDeleteObj</span> <span class="n">repoId</span> <span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="nc">GitRef</span><span class="p">)</span> <span class="p">=</span>
+        <span class="k">let</span> <span class="n">newRef</span> <span class="p">=</span> <span class="nc">GitRefUpdate</span><span class="bp">()</span>
+        <span class="n">newRef</span><span class="p">.</span><span class="nc">OldObjectId</span> <span class="p">&lt;-</span> <span class="n">ref</span><span class="p">.</span><span class="nc">ObjectId</span>
+        <span class="n">newRef</span><span class="p">.</span><span class="nc">NewObjectId</span> <span class="p">&lt;-</span> <span class="s2">"0000000000000000000000000000000000000000"</span>
+        <span class="n">newRef</span><span class="p">.</span><span class="nc">Name</span> <span class="p">&lt;-</span> <span class="n">ref</span><span class="p">.</span><span class="nc">Name</span>
+        <span class="n">newRef</span><span class="p">.</span><span class="nc">RepositoryId</span> <span class="p">&lt;-</span> <span class="n">repoId</span>
+
+        <span class="n">newRef</span></code></pre></figure>
+
+<p>I think there is no need to going into this code, as long as it simply creates an object with valid property values. But as long as we have or know how to create a ref to delete we could use a function named <code class="highlighter-rouge">UpdateRefsAsync</code> which would delete branches. The whole combined code to fetch branches and delete them at the end looks like this:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="k">private</span> <span class="n">deleteBranchesFrom</span> <span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nn">Configuration</span><span class="p">.</span><span class="nc">Config</span><span class="p">)</span> <span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="nc">GitHttpClient</span><span class="p">)</span> <span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nc">ILogger</span><span class="p">)</span> <span class="p">(</span><span class="n">repo</span><span class="p">:</span> <span class="nc">GitRepository</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">createRefToDelete</span> <span class="p">=</span> <span class="nn">Creator</span><span class="p">.</span><span class="n">toDeleteObj</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span>
+
+    <span class="n">async</span> <span class="p">{</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">branches</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetRefsAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="s2">""</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="nn">CancellationToken</span><span class="p">.</span><span class="nc">None</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+
+        <span class="k">let</span> <span class="n">branchesToDelete</span> <span class="p">=</span>
+            <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="n">createRefToDelete</span>
+
+        <span class="k">return</span><span class="o">!</span> <span class="n">client</span><span class="p">.</span><span class="nc">UpdateRefsAsync</span><span class="p">(</span><span class="n">branchesToDelete</span><span class="p">,</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span><span class="p">,</span> <span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="nn">CancellationToken</span><span class="p">.</span><span class="nc">None</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+    <span class="p">}</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">StartAsTask</span></code></pre></figure>
+
+<p>We could finish here, but we have to remember that we have some requirements about the branches that should be deleted. The first requirement was to not delete branches from which we have open pull requests. So to download all of those pull requests and get branches from which they were created we run following code:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="o">...</span>
+<span class="k">let</span><span class="o">!</span> <span class="n">branchesWithPR</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetPullRequestsByProjectAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="nn">Creator</span><span class="p">.</span><span class="n">pRCriteria</span> <span class="bp">()</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nn">AwaitTask</span>
+<span class="p">...</span></code></pre></figure>
+
+<p>This method simply downloads all branches specified by criteria, where criteria look like this:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="n">pRCriteria</span> <span class="bp">()</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">searchCriteria</span> <span class="p">=</span> <span class="nc">GitPullRequestSearchCriteria</span><span class="bp">()</span>
+    <span class="n">searchCriteria</span><span class="p">.</span><span class="nc">Status</span> <span class="p">&lt;-</span> <span class="nc">Nullable</span><span class="p">(</span><span class="nn">PullRequestStatus</span><span class="p">.</span><span class="nc">Active</span><span class="p">)</span>
+
+    <span class="n">searchCriteria</span></code></pre></figure>
+
+<p>Beyond branches that have opened pull requests, we also want to filter those which were not older than one month or have concrete names. So code like this was written:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Filter</span>
+
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">TeamFoundation</span><span class="p">.</span><span class="nn">SourceControl</span><span class="p">.</span><span class="nc">WebApi</span>
+    <span class="k">open</span> <span class="nc">System</span>
+    <span class="k">let</span> <span class="k">private</span> <span class="n">baseBranchesToExclude</span> <span class="p">=</span> <span class="p">[</span>
+            <span class="s2">"test"</span><span class="p">;</span> <span class="s2">"beta"</span><span class="p">;</span> <span class="s2">"release"</span><span class="p">;</span>
+            <span class="s2">"refs/heads/test"</span><span class="p">;</span> <span class="s2">"refs/heads/beta"</span><span class="p">;</span> <span class="s2">"refs/heads/release"</span><span class="p">;</span>
+        <span class="p">]</span>
+
+    <span class="k">let</span> <span class="n">notDeletable</span> <span class="p">(</span><span class="n">branches</span><span class="p">:</span> <span class="nc">GitRef</span> <span class="n">seq</span><span class="p">)</span> <span class="p">(</span><span class="n">branchesWithPR</span><span class="p">:</span> <span class="nc">GitPullRequest</span> <span class="n">seq</span><span class="p">)</span> <span class="p">=</span>
+        <span class="k">let</span> <span class="n">monthAgo</span> <span class="p">=</span> <span class="nn">DateTime</span><span class="p">.</span><span class="nn">UtcNow</span><span class="p">.</span><span class="nc">AddMonths</span> <span class="o">(-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">branches</span>
+        <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">filter</span> <span class="p">(</span><span class="k">fun</span> <span class="n">x</span> <span class="p">-&gt;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">baseBranchesToExclude</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">filter</span> <span class="p">(</span><span class="k">fun</span> <span class="n">y</span> <span class="p">-&gt;</span> <span class="n">y</span> <span class="p">=</span> <span class="n">x</span><span class="p">.</span><span class="nc">Name</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">length</span> <span class="p">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">then</span> <span class="bp">false</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">branchesWithPR</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">exists</span> <span class="p">(</span><span class="k">fun</span> <span class="n">y</span> <span class="p">-&gt;</span> <span class="n">y</span><span class="p">.</span><span class="nc">SourceRefName</span> <span class="p">=</span> <span class="n">x</span><span class="p">.</span><span class="nc">Name</span><span class="o">))</span> <span class="k">then</span> <span class="bp">false</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="nc">Statuses</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="p">(</span><span class="k">fun</span> <span class="n">y</span> <span class="p">-&gt;</span> <span class="n">y</span><span class="p">.</span><span class="nc">UpdatedDate</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">sortDescending</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">head</span> <span class="p">|&gt;</span> <span class="k">fun</span> <span class="n">z</span> <span class="p">-&gt;</span> <span class="n">z</span> <span class="p">&gt;</span> <span class="n">monthAgo</span><span class="p">)</span> <span class="k">then</span> <span class="bp">false</span>
+            <span class="k">else</span> <span class="bp">true</span>
+        <span class="p">)</span></code></pre></figure>
+
+<p>At first, we set the month ago date, then for which branch that was passed to a method as a <code class="highlighter-rouge">GitRef seq</code> we:</p>
+<ul>
+  <li>check if the branch is named the same as those branches we don’t want to delete (test/beta/release);</li>
+  <li>check if the branch resides on a list of branches that have opened pull requests;</li>
+  <li>check if the branch was updated after a month ago.
+Otherwise, we want to delete a branch.</li>
+</ul>
+
+<p>To sum up, what we have right now, we have filtering, gathering information about pull requests and branches. So the combination of all of the above looks like this:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="k">private</span> <span class="n">deleteBranchesFrom</span> <span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nn">Configuration</span><span class="p">.</span><span class="nc">Config</span><span class="p">)</span> <span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="nc">GitHttpClient</span><span class="p">)</span> <span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="nc">ILogger</span><span class="p">)</span> <span class="p">(</span><span class="n">repo</span><span class="p">:</span> <span class="nc">GitRepository</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">createRefToDelete</span> <span class="p">=</span> <span class="nn">Creator</span><span class="p">.</span><span class="n">toDeleteObj</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span>
+    <span class="n">async</span> <span class="p">{</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">branchesWithPR</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetPullRequestsByProjectAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="nn">Creator</span><span class="p">.</span><span class="n">pRCriteria</span> <span class="bp">()</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">branches</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetRefsAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="nc">Nullable</span><span class="p">&lt;</span><span class="kt">bool</span><span class="o">&gt;(),</span> <span class="s2">""</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="nn">CancellationToken</span><span class="p">.</span><span class="nc">None</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+
+        <span class="k">let</span> <span class="n">branchesToDelete</span> <span class="p">=</span>
+            <span class="nn">Filter</span><span class="p">.</span><span class="n">notDeletable</span> <span class="n">branches</span> <span class="n">branchesWithPR</span>
+            <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="n">createRefToDelete</span>
+
+        <span class="k">match</span> <span class="n">branchesToDelete</span> <span class="k">with</span>
+        <span class="p">|</span> <span class="n">toDelete</span> <span class="k">when</span> <span class="n">toDelete</span> <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">length</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">-&gt;</span>
+            <span class="k">let</span><span class="o">!</span> <span class="p">_</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">UpdateRefsAsync</span><span class="p">(</span><span class="n">toDelete</span><span class="p">,</span> <span class="n">repo</span><span class="p">.</span><span class="nc">Id</span><span class="p">,</span> <span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="nn">CancellationToken</span><span class="p">.</span><span class="nc">None</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+            <span class="bp">()</span>
+        <span class="p">|</span> <span class="p">_</span> <span class="p">-&gt;</span> <span class="bp">()</span>
+
+    <span class="p">}</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">StartAsTask</span></code></pre></figure>
+
+<p>You may notice that we have to add here additional check if the list of branches we want to delete is not empty if it is we don’t want to do any action.</p>
+
+<p>Going further we connect this code with a code responsible for fetching repositories.</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">let</span> <span class="n">run</span> <span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nn">Configuration</span><span class="p">.</span><span class="nc">Config</span><span class="p">)</span> <span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="p">=</span>
+    <span class="k">let</span> <span class="n">conn</span> <span class="p">=</span> <span class="n">connection</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">let</span> <span class="n">client</span> <span class="p">=</span> <span class="n">conn</span><span class="p">.</span><span class="nc">GetClient</span><span class="p">&lt;</span><span class="nc">GitHttpClient</span><span class="o">&gt;()</span>
+    <span class="k">let</span> <span class="n">deleteFunc</span> <span class="p">=</span> <span class="n">deleteBranchesFrom</span> <span class="n">config</span> <span class="n">client</span> <span class="n">log</span>
+    <span class="n">async</span> <span class="p">{</span>
+        <span class="k">let</span><span class="o">!</span> <span class="n">repositories</span> <span class="p">=</span> <span class="n">client</span><span class="p">.</span><span class="nc">GetRepositoriesAsync</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">,</span> <span class="nc">Nullable</span><span class="p">(</span><span class="bp">false</span><span class="o">))</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span>
+
+        <span class="k">do</span><span class="o">!</span>
+            <span class="n">repositories</span>
+            <span class="p">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="p">(</span><span class="k">fun</span> <span class="n">repo</span> <span class="p">-&gt;</span> <span class="n">async</span> <span class="p">{</span> <span class="k">do</span><span class="o">!</span> <span class="n">deleteFunc</span> <span class="p">(</span><span class="n">repo</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span> <span class="o">})</span>
+            <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">Parallel</span>
+            <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">Ignore</span>
+    <span class="p">}</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">StartAsTask</span></code></pre></figure>
+
+<p>We run this code in our time trigger method:</p>
+
+<figure class="highlight"><pre><code class="language-fsharp" data-lang="fsharp"><span class="k">module</span> <span class="nc">Runner</span>
+
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Azure</span><span class="p">.</span><span class="nc">WebJobs</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Extensions</span><span class="p">.</span><span class="nc">Logging</span>
+    <span class="k">open</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Extensions</span><span class="p">.</span><span class="nc">Configuration</span>
+    <span class="k">open</span> <span class="nc">Configuration</span>
+
+    <span class="p">[&lt;</span><span class="nc">FunctionName</span><span class="p">(</span><span class="s2">"BranchDeleter"</span><span class="o">)&gt;]</span>
+    <span class="k">let</span> <span class="n">deleteStaleBranches</span> <span class="o">([&lt;</span><span class="nc">TimerTriggerAttribute</span><span class="p">(</span><span class="s2">"0 0 6 * * *"</span><span class="o">)&gt;]</span><span class="n">myTimer</span><span class="p">:</span> <span class="nc">TimerInfo</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nc">ILogger</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nn">Microsoft</span><span class="p">.</span><span class="nn">Azure</span><span class="p">.</span><span class="nn">WebJobs</span><span class="p">.</span><span class="nc">ExecutionContext</span><span class="p">)</span> <span class="p">=</span>
+        <span class="k">let</span> <span class="n">builder</span> <span class="p">=</span> <span class="k">new</span> <span class="nc">ConfigurationBuilder</span><span class="bp">()</span>
+        <span class="k">let</span> <span class="n">configuration</span> <span class="p">=</span> <span class="n">builder</span><span class="p">.</span><span class="nc">SetBasePath</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="nc">FunctionAppDirectory</span><span class="o">).</span><span class="nc">AddJsonFile</span><span class="p">(</span><span class="s2">"settings.json"</span><span class="p">,</span> <span class="bp">true</span><span class="p">,</span> <span class="bp">true</span><span class="o">).</span><span class="nc">AddEnvironmentVariables</span><span class="bp">()</span><span class="p">.</span><span class="nc">Build</span><span class="bp">()</span>
+        <span class="k">let</span> <span class="n">config</span> <span class="p">=</span> <span class="p">{</span>
+            <span class="n">repository</span> <span class="p">=</span> <span class="n">configuration</span><span class="o">.[</span><span class="s2">"AzureDevops:Repository"</span><span class="p">]</span>
+            <span class="n">project</span> <span class="p">=</span> <span class="n">configuration</span><span class="o">.[</span><span class="s2">"AzureDevops:Project"</span><span class="p">]</span>
+            <span class="n">accessToken</span> <span class="p">=</span> <span class="n">configuration</span><span class="o">.[</span><span class="s2">"AzureDevops:AccessToken"</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="n">async</span> <span class="p">{</span>
+            <span class="n">async</span> <span class="p">{</span> <span class="k">do</span><span class="o">!</span> <span class="p">(</span><span class="nn">Deleter</span><span class="p">.</span><span class="n">run</span> <span class="n">config</span> <span class="n">log</span><span class="p">)</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">AwaitTask</span> <span class="p">}</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">RunSynchronously</span>
+        <span class="p">}</span> <span class="p">|&gt;</span> <span class="nn">Async</span><span class="p">.</span><span class="nc">StartAsTask</span> <span class="p">|&gt;</span> <span class="n">ignore</span></code></pre></figure>
+
+<p>The last thing we have to do is a deployment to Azure. So we set-up an AzureFunction on AzureDevops:</p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/funcazure.png" alt="createfunction" /></p>
+
+<p>We go to the project and click publish on it. Set all the information and click publish.
+If we enable AppInsights we could also check if our function is working:</p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/branchdeleter.png" alt="branchdeleter" /></p>
+
+<p><img src="https://mnie.github.com/img/23-09-2019BranchDeleter/branchdeleter2.png" alt="branchdeleter2" /></p>
+
+<p>To summarize, thanks to the above code we could keep our codebase in terms of branches in a good shape, without any irrelevant branches that reside in repositories for months or even years. Because someone forgot to check a checkbox to delete his branch after a merge of a pull request. You could found the full source code <a href="https://github.com/MNie/BranchDeleter">here</a>.</p>
+
+<p>Thanks for reading :)</p>
+
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Deleting+old+branches+using+Azure+Functions%20-%20http://mnie.me/branchdeleter%20by%20@mnie8" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://mnie.me/branchdeleter" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+            <div id="disqus_thread" class="article-comments"></div>
+            <script src="https://chalk-1.disqus.com/embed.js" async defer></script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    2020
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-81299349-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-81299349-1');
+  </script>
+
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

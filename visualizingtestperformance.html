@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>MNie | Visualizing performance tests execution times</title>
+  <meta name="description" content="Continuation to the previous article about performance testing in F#, which you can find [here](https://mnie.github.io/2017-08-17-performanceTestsUsingFsCheck/).">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Visualizing performance tests execution times">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://mnie.me/visualizingtestperformance">
+  <meta property="og:description" content="Continuation to the previous article about performance testing in F#, which you can find [here](https://mnie.github.io/2017-08-17-performanceTestsUsingFsCheck/).">
+  <meta property="og:site_name" content="MNie">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://mnie.me/visualizingtestperformance">
+  <meta name="twitter:title" content="Visualizing performance tests execution times">
+  <meta name="twitter:description" content="Continuation to the previous article about performance testing in F#, which you can find [here](https://mnie.github.io/2017-08-17-performanceTestsUsingFsCheck/).">
+
+  
+    
+      <meta property="og:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+      <meta name="twitter:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+    
+  
+
+  <link href="http://mnie.me/feed.xml" type="application/rss+xml" rel="alternate" title="MNie Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8d94e1b2ced7d843d882416da48ad6b7a0386071412905b6048dbe8205e32559.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-03c296a876e33d932966817b36fde1212bdb044fb0585145cde98ac98da59715.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-52a5e7e150abd939a150d09a93ec31ffd219b9e01c09465a899f36f3654beef1.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="MNie">MNie</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/mnie8" rel="noreferrer noopener" target="_blank" title="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-twitter">
+  <use href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter" xlink:href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/mnie" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://stackoverflow.com/users/2947860" rel="noreferrer noopener" target="_blank" title="Stack Overflow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-stackoverflow">
+  <use href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow" xlink:href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/michał-niegrzybowski" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="mailto:michal.niegrzybowski@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" rel="noreferrer noopener" target="_blank" title="RSS">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-rss">
+  <use href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss" xlink:href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Visualizing performance tests execution times</h1>
+            <p>Continuation to the previous article about performance testing in F#, which you can find [here](https://mnie.github.io/2017-08-17-performanceTestsUsingFsCheck/).</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    November 1, 2017
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      4 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/fsharp" title="See all posts with tag 'F#'">F#</a>
+    
+      
+      <a href="/tag/microservices" title="See all posts with tag 'Microservices'">Microservices</a>
+    
+      
+      <a href="/tag/patterns" title="See all posts with tag 'Patterns'">Patterns</a>
+    
+      
+      <a href="/tag/elasticsearch" title="See all posts with tag 'ElasticSearch'">ElasticSearch</a>
+    
+      
+      <a href="/tag/tests" title="See all posts with tag 'Tests'">Tests</a>
+    
+      
+      <a href="/tag/automatedtests" title="See all posts with tag 'Automated Tests'">Automated Tests</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>Hey,</p>
+
+<p>The post is actually a continuation to the previous article about performance testing in F#, which you can find <a href="https://mnie.github.io/2017-08-17-performanceTestsUsingFsCheck/">here</a>.
+Briefly, the clue of the previous post was to describe a solution based on the FsCheck library that tested the APIs available in the application, in terms of execution time for random http requests.
+Each test, depending on its type, had a predetermined minimum execution time that should be met.</p>
+
+<p>How to determine the minimum execution time(s) for single test?
+Is the time for generating a table with one million records and two columns in less than a second at the beginning of a project could be somehow reliable relative to the time it generates “the same” table containing one million records with around 100 columns at the end of the work associated with it?</p>
+
+<p>The question is, whether these times should always be the same throughout the entire development process, rather not, because what if you add more functionality, which in some way will cause the slowdown of application, or move application to the cloud, or upgrade/downgrade the machines on which it runs?
+For this purpose, I decided to monitor the test execution times in time. How to approach this? Times can be collected in the form of logs and then processed by a tool dedicated to it like a kibana. This task can also be accomplished using, for example, FsCharting or highcharts.
+However, due to the use of Kibana in my project. I decided that it would be a good idea to save each of the test times to ElasticSearch so that the results could then be easily available through the Kibana Dashboards.</p>
+
+<p>We start by downloading and starting <a href="https://www.elastic.co/downloads/elasticsearch">elasticsearch</a> locally.
+We launch it with the elasticsearch command in the bin folder in the previously downloaded source. ElasticSearch should be available by default at port 9200, which we can check by typing this address (localhost: 9200) in the search bar of a browser.
+In addition to Elasticsearch we will also need <a href="https://www.elastic.co/downloads/kibana">Kibana</a>.</p>
+
+<p>We run it like elastic, launching kibana.bat in the bin folder.</p>
+
+<p>At this point we have an entire environment ready for saving test times. So we can go to the data which we would want to save in Elasticsearch.</p>
+
+<p>This was accomplished by adding some functionality to the test project.
+We start by adding the <a href="https://github.com/elastic/elasticsearch-net">NEST</a> library to the project.</p>
+
+<p>Going back to the previous post, the structure of the test looks as follows.</p>
+
+<script src="https://gist.github.com/MNie/ce25b2879ea2c421deed17f978baabd1.js"></script>
+
+<p>You may notice that sending information to Elasticsearch with the execution time should occur just before the assertion phase.
+Due to the fact that sending this information will take place in many tests I decided to create a new module that will only answer for sending information to Elasticsearch.
+This module looks like this:</p>
+
+<script src="https://gist.github.com/MNie/1dbdc59c9aae5deb52e6ef642eeb52fc.js"></script>
+
+<p>At the beginning you could se declaration of a model which will be represented test execution information.
+Then there are 3 private functions that will help us perform operations on methods available in the NEST library.</p>
+
+<p>The first one.</p>
+
+<script src="https://gist.github.com/MNie/c8d6dff29654e204a1cbfb0e39f76439.js"></script>
+
+<p>Is responsible for translating the function F# into a Func delegate from C#, the next one:</p>
+
+<script src="https://gist.github.com/MNie/fd566feab0332b9ae4a770ee1158503a.js"></script>
+
+<p>Is responsible for setting the IndexName based on a string argument. The last:</p>
+
+<script src="https://gist.github.com/MNie/d48465a099b124635e287c0b776ebcb5.js"></script>
+
+<p>Performs an index function with the specified argument and maps its result to the IndexRequest.</p>
+
+<p>By going to the Elasticsearch connection setup, we can see the creation of an URI where we say where our Elasticsearch instance is located.
+Then we create a connection setup and create an Elasticsearch client and set up an index where our data will be available.
+An important aspect here is that the index name must be composed of only lowercase letters.</p>
+
+<p>By going to the code that executes the action, you can see the senddata method, which creates a object that will represent the data held in Elasticsearch.
+Then in the try/catch block we see the message sent to Elasticsearch.</p>
+
+<p>So finally structure of a test would look like this:</p>
+
+<script src="https://gist.github.com/MNie/dc4f7d784ba4ada032cd888bc4274ba1.js"></script>
+
+<p>It would be all about the code, after firing tests and letting them run several times, you will notice that we can create some visualizations that will show us how time executions looks like.
+Which would look like this:</p>
+
+<p><img src="https://mnie.github.com/img/1-11-2017VisualizingPerformance/2.png" alt="elastic" />
+<img src="https://mnie.github.com/img/1-11-2017VisualizingPerformance/1.png" alt="kibana" /></p>
+
+<p>In conclusion, we can graphically see how long our test runs over time, and if we should reconsider changing time limits previously set for tests.</p>
+
+<p>Thank you for reading :)</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Visualizing+performance+tests+execution+times%20-%20http://mnie.me/visualizingtestperformance%20by%20@mnie8" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://mnie.me/visualizingtestperformance" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+            <div id="disqus_thread" class="article-comments"></div>
+            <script src="https://chalk-1.disqus.com/embed.js" async defer></script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    2020
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-81299349-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-81299349-1');
+  </script>
+
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>MNie | AppInsights logging full requests with hidding sensitive data</title>
+  <meta name="description" content="In our application, daily, we are using Application Insights. To look at the details of a request/response, we store the body of them in a separate Log database. As long as the application growth, we thought it would be easier for us to have everything in one place. So we planned to involve everything in ApplicationInsights.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="AppInsights logging full requests with hidding sensitive data">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://mnie.me/appinsightslogging">
+  <meta property="og:description" content="In our application, daily, we are using Application Insights. To look at the details of a request/response, we store the body of them in a separate Log database. As long as the application growth, we thought it would be easier for us to have everything in one place. So we planned to involve everything in ApplicationInsights.">
+  <meta property="og:site_name" content="MNie">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://mnie.me/appinsightslogging">
+  <meta name="twitter:title" content="AppInsights logging full requests with hidding sensitive data">
+  <meta name="twitter:description" content="In our application, daily, we are using Application Insights. To look at the details of a request/response, we store the body of them in a separate Log database. As long as the application growth, we thought it would be easier for us to have everything in one place. So we planned to involve everything in ApplicationInsights.">
+
+  
+    
+      <meta property="og:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+      <meta name="twitter:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+    
+  
+
+  <link href="http://mnie.me/feed.xml" type="application/rss+xml" rel="alternate" title="MNie Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8d94e1b2ced7d843d882416da48ad6b7a0386071412905b6048dbe8205e32559.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-03c296a876e33d932966817b36fde1212bdb044fb0585145cde98ac98da59715.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-52a5e7e150abd939a150d09a93ec31ffd219b9e01c09465a899f36f3654beef1.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="MNie">MNie</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/mnie8" rel="noreferrer noopener" target="_blank" title="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-twitter">
+  <use href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter" xlink:href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/mnie" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://stackoverflow.com/users/2947860" rel="noreferrer noopener" target="_blank" title="Stack Overflow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-stackoverflow">
+  <use href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow" xlink:href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/michał-niegrzybowski" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="mailto:michal.niegrzybowski@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" rel="noreferrer noopener" target="_blank" title="RSS">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-rss">
+  <use href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss" xlink:href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>AppInsights logging full requests with hidding sensitive data</h1>
+            <p>In our application, daily, we are using Application Insights. To look at the details of a request/response, we store the body of them in a separate Log database. As long as the application growth, we thought it would be easier for us to have everything in one place. So we planned to involve everything in ApplicationInsights.</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    September 2, 2019
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      13 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/csharp" title="See all posts with tag 'C#'">C#</a>
+    
+      
+      <a href="/tag/patterns" title="See all posts with tag 'Patterns'">Patterns</a>
+    
+      
+      <a href="/tag/microservices" title="See all posts with tag 'Microservices'">Microservices</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>Hi,</p>
+
+<p>in our application, daily, we are using Application Insights to report all requests to and from us so we could monitor the actual status of a system. Thanks to that we are sure that our clients wouldn’t experience unpleasantness because of not working or slowly working application. To look at the body of each request and response, we store them in a separate Log database. As long as the application growth, we have more and more users and regions to handle we thought it would be easier for us to have everything in one place. So we planned to involve everything in ApplicationInsights.</p>
+
+<p>All of this sounds pretty easy, but we encounter a couple of problems.
+First of them was that when we listen in middleware for a request/response to/from a server so we could send it body to an Application Insights is not that easy, when we tried to read a data stream we get an exception. This is caused by built-in middleware which already read the body but didn’t keep a stream in a state that would be ready for another read (<a href="https://stackoverflow.com/questions/42686363/view-post-request-body-in-application-insights">link to SO</a>). So as a workaround to this problem, we decided to cache a request/response body in an in-memory cache for a very short period. So we could read it when we want to send it to an Azure. The important thing here is that we cache this data per instance of a service, so every instance has it’s own cache for request/response body so the availability time would be very low. Also because of that we used a very short lifetime and bounded cache size, so it wouldn’t be growth to the enormous sizes. The caching approach itself we implement like this:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">RewindFilter</span> <span class="p">:</span> <span class="n">ActionFilterAttribute</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">IRequestDataAccessor</span> <span class="n">_bodyAccessor</span><span class="p">;</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">ITelemetryEnricher</span> <span class="n">_telemetryEnricher</span><span class="p">;</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">ILogger</span><span class="p">&lt;</span><span class="n">RewindFilter</span><span class="p">&gt;</span> <span class="n">_logger</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="nf">RewindFilter</span><span class="p">(</span><span class="n">IRequestDataAccessor</span> <span class="n">bodyAccessor</span><span class="p">,</span> <span class="n">ILogger</span><span class="p">&lt;</span><span class="n">RewindFilter</span><span class="p">&gt;</span> <span class="n">logger</span><span class="p">,</span> <span class="n">ITelemetryEnricher</span> <span class="n">telemetryEnricher</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_bodyAccessor</span> <span class="p">=</span> <span class="n">bodyAccessor</span><span class="p">;</span>
+        <span class="n">_logger</span> <span class="p">=</span> <span class="n">logger</span><span class="p">;</span>
+        <span class="n">_telemetryEnricher</span> <span class="p">=</span> <span class="n">telemetryEnricher</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">override</span> <span class="k">async</span> <span class="n">Task</span> <span class="nf">OnActionExecutionAsync</span><span class="p">(</span><span class="n">ActionExecutingContext</span> <span class="n">context</span><span class="p">,</span> <span class="n">ActionExecutionDelegate</span> <span class="n">next</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_telemetryEnricher</span><span class="p">.</span><span class="nf">AttachRequest</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">))</span>
+            <span class="n">_bodyAccessor</span><span class="p">.</span><span class="nf">SetBody</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">,</span> <span class="n">context</span><span class="p">.</span><span class="n">ActionDescriptor</span><span class="p">,</span> <span class="n">context</span><span class="p">.</span><span class="n">ActionArguments</span><span class="p">)</span>
+                <span class="p">.</span><span class="nf">Bind</span><span class="p">(</span>
+                    <span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="nf">ToSuccess</span><span class="p">(),</span>
+                    <span class="n">err</span> <span class="p">=&gt;</span>
+                    <span class="p">{</span>
+                        <span class="n">_logger</span><span class="p">.</span><span class="nf">LogWarning</span><span class="p">(</span><span class="n">err</span><span class="p">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
+                        <span class="k">return</span> <span class="n">err</span><span class="p">.</span><span class="n">Message</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;();</span>
+                    <span class="p">});</span>
+
+        <span class="k">await</span> <span class="nf">next</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">override</span> <span class="k">async</span> <span class="n">Task</span> <span class="nf">OnResultExecutionAsync</span><span class="p">(</span><span class="n">ResultExecutingContext</span> <span class="n">context</span><span class="p">,</span> <span class="n">ResultExecutionDelegate</span> <span class="n">next</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_telemetryEnricher</span><span class="p">.</span><span class="nf">AttachResponse</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">))</span>
+            <span class="n">_bodyAccessor</span><span class="p">.</span><span class="nf">SetBody</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">,</span> <span class="n">context</span><span class="p">.</span><span class="n">Result</span><span class="p">)</span>
+                <span class="p">.</span><span class="nf">Bind</span><span class="p">(</span>
+                    <span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="nf">ToSuccess</span><span class="p">(),</span>
+                    <span class="n">err</span> <span class="p">=&gt;</span>
+                    <span class="p">{</span>
+                        <span class="n">_logger</span><span class="p">.</span><span class="nf">LogWarning</span><span class="p">(</span><span class="n">err</span><span class="p">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
+                        <span class="k">return</span> <span class="n">err</span><span class="p">.</span><span class="n">Message</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;();</span>
+                    <span class="p">});</span>
+        <span class="k">await</span> <span class="nf">next</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We could found here a .net core filter, which is responsible for catching requests/response to/from server and then save them in a cache.</p>
+
+<p>TelemetryEnricher implementation looks like this:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">interface</span> <span class="nc">ITelemetryEnricher</span>
+<span class="p">{</span>
+    <span class="n">ITelemetry</span> <span class="nf">Enrich</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">tele</span><span class="p">);</span>
+    <span class="kt">bool</span> <span class="nf">AttachRequest</span><span class="p">(</span><span class="n">HttpContext</span> <span class="n">context</span><span class="p">);</span>
+    <span class="kt">bool</span> <span class="nf">AttachResponse</span><span class="p">(</span><span class="n">HttpContext</span> <span class="n">context</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">DefaultTelemetryEnricher</span> <span class="p">:</span> <span class="n">ITelemetryEnricher</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">ITelemetry</span> <span class="nf">Enrich</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">tele</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">tele</span><span class="p">;</span>
+    <span class="k">public</span> <span class="kt">bool</span> <span class="nf">AttachRequest</span><span class="p">(</span><span class="n">HttpContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="k">true</span><span class="p">;</span>
+    <span class="k">public</span> <span class="kt">bool</span> <span class="nf">AttachResponse</span><span class="p">(</span><span class="n">HttpContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="k">true</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Cache implementation looks like this and in fact it encapsulates a IMemoryCache.</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">internal</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">KeyGenerator</span>
+<span class="p">{</span>
+    <span class="k">internal</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">Request</span><span class="p">(</span><span class="kt">string</span> <span class="n">id</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="s">$"Request_</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="s">"</span><span class="p">;</span>
+    <span class="k">internal</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">Response</span><span class="p">(</span><span class="kt">string</span> <span class="n">id</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="s">$"Response_</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="s">"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">RequestDataAccessor</span> <span class="p">:</span> <span class="n">IRequestDataAccessor</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">IMemoryCache</span> <span class="n">_cache</span><span class="p">;</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">TimeSpan</span> <span class="n">_expirationInMs</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="nf">RequestDataAccessor</span><span class="p">(</span><span class="kt">long</span> <span class="n">cacheSize</span><span class="p">,</span> <span class="kt">int</span> <span class="n">scanFrequencyMs</span><span class="p">,</span> <span class="kt">int</span> <span class="n">expirationInMs</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">cacheOptions</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MemoryCacheOptions</span>
+        <span class="p">{</span>
+            <span class="n">ExpirationScanFrequency</span> <span class="p">=</span> <span class="n">TimeSpan</span><span class="p">.</span><span class="nf">FromMilliseconds</span><span class="p">(</span><span class="n">scanFrequencyMs</span><span class="p">),</span>
+            <span class="n">SizeLimit</span> <span class="p">=</span> <span class="n">cacheSize</span>
+        <span class="p">};</span>
+        <span class="n">_cache</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">MemoryCache</span><span class="p">(</span><span class="n">cacheOptions</span><span class="p">);</span>
+        <span class="n">_expirationInMs</span> <span class="p">=</span> <span class="n">TimeSpan</span><span class="p">.</span><span class="nf">FromMilliseconds</span><span class="p">(</span><span class="n">expirationInMs</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Result</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="nf">GetBody</span><span class="p">(</span><span class="kt">string</span> <span class="n">traceInitializer</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">try</span>
+        <span class="p">{</span>
+            <span class="kt">var</span> <span class="n">success</span> <span class="p">=</span> <span class="n">_cache</span><span class="p">.</span><span class="nf">TryGetValue</span><span class="p">(</span><span class="n">traceInitializer</span><span class="p">,</span> <span class="k">out</span> <span class="kt">var</span> <span class="n">result</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(!</span><span class="n">success</span><span class="p">)</span>
+                <span class="k">return</span> <span class="s">$"record under key </span><span class="p">{</span><span class="n">traceInitializer</span><span class="p">}</span><span class="s"> was not found in a cache"</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+
+            <span class="k">switch</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">case</span> <span class="kt">string</span> <span class="n">s</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">s</span><span class="p">.</span><span class="nf">ToSuccess</span><span class="p">();</span>
+                <span class="k">default</span><span class="p">:</span>
+                    <span class="k">return</span>
+                        <span class="s">$"record under key: </span><span class="p">{</span><span class="n">traceInitializer</span><span class="p">}</span><span class="s"> was found but was of a different type: </span><span class="p">{</span><span class="n">result</span><span class="p">.</span><span class="nf">GetType</span><span class="p">()}</span><span class="s"> than string"</span>
+                            <span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">e</span><span class="p">.</span><span class="n">Message</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">Result</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;</span> <span class="nf">SetBody</span><span class="p">(</span><span class="n">HttpContext</span> <span class="n">context</span><span class="p">,</span> <span class="n">ActionDescriptor</span> <span class="n">descriptor</span><span class="p">,</span>
+        <span class="n">IDictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">object</span><span class="p">&gt;</span> <span class="n">args</span><span class="p">)</span> <span class="p">=&gt;</span>
+        <span class="nf">ReadRequest</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="p">.</span><span class="nf">Bind</span><span class="p">(</span><span class="n">body</span> <span class="p">=&gt;</span> <span class="nf">SetEntryInCache</span><span class="p">(</span><span class="n">KeyGenerator</span><span class="p">.</span><span class="nf">Request</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">TraceIdentifier</span><span class="p">),</span> <span class="n">body</span><span class="p">));</span>
+
+    <span class="k">public</span> <span class="n">Result</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;</span> <span class="nf">SetBody</span><span class="p">(</span><span class="n">HttpContext</span> <span class="n">context</span><span class="p">,</span> <span class="n">IActionResult</span> <span class="n">result</span><span class="p">)</span> <span class="p">=&gt;</span>
+        <span class="nf">ReadResponse</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="p">.</span><span class="nf">Bind</span><span class="p">(</span><span class="n">body</span> <span class="p">=&gt;</span> <span class="nf">SetEntryInCache</span><span class="p">(</span><span class="n">KeyGenerator</span><span class="p">.</span><span class="nf">Response</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">TraceIdentifier</span><span class="p">),</span> <span class="n">body</span><span class="p">));</span>
+
+    <span class="k">private</span> <span class="k">static</span> <span class="n">Result</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="nf">ReadResponse</span><span class="p">(</span><span class="n">IActionResult</span> <span class="n">result</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">try</span>
+        <span class="p">{</span>
+            <span class="k">switch</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">case</span> <span class="n">ObjectResult</span> <span class="n">r</span> <span class="n">when</span> <span class="n">r</span><span class="p">?.</span><span class="n">Value</span> <span class="p">!=</span> <span class="k">null</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">JsonConvert</span><span class="p">.</span><span class="nf">SerializeObject</span><span class="p">(</span>
+                        <span class="n">r</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span>
+                        <span class="k">new</span> <span class="nf">JsonSerializerSettings</span><span class="p">()}</span>
+                    <span class="p">).</span><span class="nf">ToSuccess</span><span class="p">();</span>
+                <span class="k">default</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">e</span><span class="p">.</span><span class="n">Message</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">static</span> <span class="n">Result</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="nf">ReadRequest</span><span class="p">(</span><span class="n">ActionDescriptor</span> <span class="n">actionDescriptor</span><span class="p">,</span>
+        <span class="n">IDictionary</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">object</span><span class="p">&gt;</span> <span class="n">args</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">try</span>
+        <span class="p">{</span>
+            <span class="kt">var</span> <span class="n">methodInfo</span> <span class="p">=</span> <span class="p">((</span><span class="n">Microsoft</span><span class="p">.</span><span class="n">AspNetCore</span><span class="p">.</span><span class="n">Mvc</span><span class="p">.</span><span class="n">Controllers</span><span class="p">.</span><span class="n">ControllerActionDescriptor</span><span class="p">)</span><span class="n">actionDescriptor</span><span class="p">).</span><span class="n">MethodInfo</span><span class="p">;</span>
+            <span class="kt">var</span> <span class="n">noLogParameters</span> <span class="p">=</span> <span class="n">methodInfo</span><span class="p">.</span><span class="nf">GetParameters</span><span class="p">().</span><span class="nf">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">true</span><span class="p">).</span><span class="nf">Any</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="nf">GetType</span><span class="p">()</span> <span class="p">==</span> <span class="k">typeof</span><span class="p">(</span><span class="n">SensitiveAttribute</span><span class="p">))).</span><span class="nf">Select</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+
+            <span class="kt">var</span> <span class="n">hiddenSensitiveData</span> <span class="p">=</span> <span class="n">args</span>
+                <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">a</span> <span class="p">=&gt;</span> <span class="p">!</span><span class="n">noLogParameters</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">Key</span><span class="p">)</span> <span class="p">&amp;&amp;</span> <span class="n">a</span><span class="p">.</span><span class="n">Value</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+                <span class="p">.</span><span class="nf">Select</span><span class="p">(</span><span class="n">argument</span> <span class="p">=&gt;</span> <span class="n">JsonConvert</span><span class="p">.</span><span class="nf">SerializeObject</span><span class="p">(</span><span class="n">argument</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span>
+                    <span class="k">new</span> <span class="nf">JsonSerializerSettings</span><span class="p">())</span>
+                <span class="p">)</span>
+                <span class="p">.</span><span class="nf">ToList</span><span class="p">();</span>
+
+            <span class="k">return</span> <span class="n">hiddenSensitiveData</span><span class="p">.</span><span class="nf">Any</span><span class="p">()</span>
+                <span class="p">?</span> <span class="kt">string</span><span class="p">.</span><span class="nf">Join</span><span class="p">(</span><span class="n">Environment</span><span class="p">.</span><span class="n">NewLine</span><span class="p">,</span> <span class="n">hiddenSensitiveData</span><span class="p">).</span><span class="nf">ToSuccess</span><span class="p">()</span>
+                <span class="p">:</span> <span class="s">"data is empty"</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+        <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">e</span><span class="p">.</span><span class="n">Message</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="n">Result</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;</span> <span class="nf">SetEntryInCache</span><span class="p">(</span><span class="kt">string</span> <span class="n">traceInitializer</span><span class="p">,</span> <span class="kt">string</span> <span class="n">body</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">try</span>
+        <span class="p">{</span>
+            <span class="n">_cache</span><span class="p">.</span><span class="nf">Set</span><span class="p">(</span><span class="n">traceInitializer</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="k">new</span> <span class="nf">MemoryCacheEntryOptions</span><span class="p">()</span>
+            <span class="p">{</span>
+                <span class="n">SlidingExpiration</span> <span class="p">=</span> <span class="n">_expirationInMs</span><span class="p">,</span>
+                <span class="n">Size</span> <span class="p">=</span> <span class="m">1</span>
+            <span class="p">});</span>
+            <span class="kt">var</span> <span class="n">successSave</span> <span class="p">=</span> <span class="n">_cache</span><span class="p">.</span><span class="nf">TryGetValue</span><span class="p">(</span><span class="n">traceInitializer</span><span class="p">,</span> <span class="k">out</span> <span class="kt">var</span> <span class="n">_</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">successSave</span>
+                <span class="p">?</span> <span class="n">ResultFactory</span><span class="p">.</span><span class="nf">CreateSuccess</span><span class="p">()</span>
+                <span class="p">:</span> <span class="s">$"entry under key </span><span class="p">{</span><span class="n">traceInitializer</span><span class="p">}</span><span class="s"> was not saved in a cache"</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+        <span class="k">catch</span> <span class="p">(</span><span class="n">Exception</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">e</span><span class="p">.</span><span class="n">Message</span><span class="p">.</span><span class="n">ToFailure</span><span class="p">&lt;</span><span class="n">Unit</span><span class="p">&gt;();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Encapsulation here is not a mistake, because we want to have full control of how an instance of a cache is created in concrete service, so the constructor has a lifetime, size parameter. Also, we could see here how we build keys, this is because we want to distinguish the request from response bodies.</p>
+
+<p>Okay, we listen to requests and responses but how the call to AppInsights looks like?</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">Initializer</span> <span class="p">:</span> <span class="n">ITelemetryInitializer</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">IHttpContextAccessor</span> <span class="n">_httpContextAccessor</span><span class="p">;</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">IRequestDataAccessor</span> <span class="n">_requestDataAccessor</span><span class="p">;</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">ITelemetryEnricher</span> <span class="n">_telemetryEnricher</span><span class="p">;</span>
+    <span class="k">public</span> <span class="nf">Initializer</span><span class="p">(</span><span class="n">IHttpContextAccessor</span> <span class="n">httpContextAccessor</span><span class="p">,</span> <span class="n">IRequestDataAccessor</span> <span class="n">requestDataAccessor</span><span class="p">,</span> <span class="n">ITelemetryEnricher</span> <span class="n">telemetryEnricher</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_httpContextAccessor</span> <span class="p">=</span> <span class="n">httpContextAccessor</span><span class="p">;</span>
+        <span class="n">_requestDataAccessor</span> <span class="p">=</span> <span class="n">requestDataAccessor</span><span class="p">;</span>
+        <span class="n">_telemetryEnricher</span> <span class="p">=</span> <span class="n">telemetryEnricher</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">Initialize</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">telemetry</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">telemetry</span> <span class="p">=</span> <span class="n">_telemetryEnricher</span><span class="p">.</span><span class="nf">Enrich</span><span class="p">(</span><span class="n">telemetry</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">_telemetryEnricher</span><span class="p">.</span><span class="nf">AttachRequest</span><span class="p">(</span><span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">))</span>
+            <span class="nf">AddRequestBody</span><span class="p">(</span><span class="n">telemetry</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">_telemetryEnricher</span><span class="p">.</span><span class="nf">AttachResponse</span><span class="p">(</span><span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">))</span>
+            <span class="nf">AddResponseBody</span><span class="p">(</span><span class="n">telemetry</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">protected</span> <span class="k">void</span> <span class="nf">AddRequestBody</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">telemetry</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="n">telemetry</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">case</span> <span class="n">RequestTelemetry</span> <span class="n">requestTelemetry</span> <span class="n">when</span> <span class="nf">HasBody</span><span class="p">()</span> <span class="p">&amp;&amp;</span> <span class="kt">int</span><span class="p">.</span><span class="nf">TryParse</span><span class="p">(</span><span class="n">requestTelemetry</span><span class="p">.</span><span class="n">ResponseCode</span><span class="p">,</span> <span class="k">out</span> <span class="kt">var</span> <span class="n">code</span><span class="p">):</span>
+            <span class="p">{</span>
+                <span class="k">if</span><span class="p">(!</span><span class="n">requestTelemetry</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="nf">ContainsKey</span><span class="p">(</span><span class="s">"RequestBody"</span><span class="p">)</span> <span class="p">&amp;&amp;</span> <span class="nf">IsAnError</span><span class="p">(</span><span class="n">code</span><span class="p">))</span>
+                    <span class="nf">GetBody</span><span class="p">(</span><span class="n">KeyGenerator</span><span class="p">.</span><span class="n">Request</span><span class="p">)</span>
+                        <span class="p">.</span><span class="nf">Bind</span><span class="p">(</span><span class="n">data</span> <span class="p">=&gt;</span>
+                        <span class="p">{</span>
+                            <span class="n">requestTelemetry</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="s">"RequestBody"</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+                            <span class="k">return</span> <span class="n">data</span><span class="p">.</span><span class="nf">ToSuccess</span><span class="p">();</span>
+                        <span class="p">});</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">protected</span> <span class="k">void</span> <span class="nf">AddResponseBody</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">telemetry</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">switch</span> <span class="p">(</span><span class="n">telemetry</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">case</span> <span class="n">RequestTelemetry</span> <span class="n">requestTelemetry</span><span class="p">:</span>
+            <span class="p">{</span>
+                <span class="k">if</span><span class="p">(!</span><span class="n">requestTelemetry</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="nf">ContainsKey</span><span class="p">(</span><span class="s">"ResponseBody"</span><span class="p">))</span>
+                    <span class="nf">GetBody</span><span class="p">(</span><span class="n">KeyGenerator</span><span class="p">.</span><span class="n">Response</span><span class="p">)</span>
+                        <span class="p">.</span><span class="nf">Bind</span><span class="p">(</span><span class="n">data</span> <span class="p">=&gt;</span>
+                        <span class="p">{</span>
+                            <span class="n">requestTelemetry</span><span class="p">.</span><span class="n">Properties</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="s">"ResponseBody"</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+                            <span class="k">return</span> <span class="n">data</span><span class="p">.</span><span class="nf">ToSuccess</span><span class="p">();</span>
+                        <span class="p">});</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">IsAnError</span><span class="p">(</span><span class="kt">int</span> <span class="n">code</span><span class="p">)</span> <span class="p">=&gt;</span>
+        <span class="p">(</span><span class="n">code</span> <span class="p">&gt;=</span> <span class="m">400</span>
+        <span class="p">&amp;&amp;</span> <span class="n">code</span> <span class="p">&lt;</span> <span class="m">600</span><span class="p">)</span>
+        <span class="p">||</span> <span class="n">code</span> <span class="p">==</span> <span class="m">0</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="n">Result</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="nf">GetBody</span><span class="p">(</span><span class="n">Func</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">,</span> <span class="kt">string</span><span class="p">&gt;</span> <span class="n">decorateIdentifier</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">context</span> <span class="p">=</span> <span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">_requestDataAccessor</span><span class="p">.</span><span class="nf">GetBody</span><span class="p">(</span><span class="nf">decorateIdentifier</span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">TraceIdentifier</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="kt">bool</span> <span class="nf">HasBody</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">verbWhichSupportsBody</span> <span class="p">=</span> <span class="p">(</span><span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">Method</span> <span class="p">==</span> <span class="n">HttpMethods</span><span class="p">.</span><span class="n">Post</span>
+                    <span class="p">||</span> <span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">Method</span> <span class="p">==</span> <span class="n">HttpMethods</span><span class="p">.</span><span class="n">Put</span>
+                    <span class="p">||</span> <span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">Method</span> <span class="p">==</span> <span class="n">HttpMethods</span><span class="p">.</span><span class="n">Patch</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">verbWhichSupportsBody</span>
+                <span class="p">&amp;&amp;</span> <span class="n">_httpContextAccessor</span><span class="p">.</span><span class="n">HttpContext</span><span class="p">.</span><span class="n">Request</span><span class="p">.</span><span class="n">ContentLength</span> <span class="p">&gt;</span> <span class="m">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>As we could see we have to implement an <code class="highlighter-rouge">ITelemetryInitializer</code> interface from AppInsights nuget package, which is executed to send data to AppInsights. Here we get data from our cache. We don’t delete them since we know the lifetime is set to very short so the delete operation has no sense here.</p>
+
+<p>We also have to implement our <code class="highlighter-rouge">ITelemetryProcessor</code> to say when we want to send data to Azure:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">interface</span> <span class="nc">IProcessorApplier</span>
+<span class="p">{</span>
+    <span class="kt">bool</span> <span class="nf">Apply</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">tele</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">DefaultProcessorApplier</span> <span class="p">:</span> <span class="n">IProcessorApplier</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">bool</span> <span class="nf">Apply</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">tele</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="k">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">TelemetryProcessor</span> <span class="p">:</span> <span class="n">ITelemetryProcessor</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">ITelemetryProcessor</span> <span class="n">_next</span><span class="p">;</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">IProcessorApplier</span> <span class="n">_applier</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="nf">TelemetryProcessor</span><span class="p">(</span><span class="n">ITelemetryProcessor</span> <span class="n">next</span><span class="p">,</span> <span class="n">IProcessorApplier</span> <span class="n">applier</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">_next</span> <span class="p">=</span> <span class="n">next</span><span class="p">;</span>
+        <span class="n">_applier</span> <span class="p">=</span> <span class="n">applier</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">Process</span><span class="p">(</span><span class="n">ITelemetry</span> <span class="n">item</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_applier</span><span class="p">.</span><span class="nf">Apply</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+            <span class="n">_next</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We run application and we could found records as such on Azure:</p>
+
+<p><img src="https://mnie.github.com/img/02-09-2019AppInsights/old.png" alt="old" /></p>
+
+<p>Everything looks good. But are we sure? As we could look at the data, we don’t hide anything so we could send sensitive data to Azure which is not a good idea when we have a RODO/GDPR. Because of that, we introduce an attribute name it <code class="highlighter-rouge">Sensitive</code>, so we could mark a whole class, field or property we want to hide from logging to ApplicationInsights. We would change it’s content to a <code class="highlighter-rouge">PII Data</code> string, so the similar behavior to hiding sensitive data in Connection Strings by Azure.</p>
+
+<p>Attribute code looks like this:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">public</span> <span class="k">class</span> <span class="nc">SensitiveAttribute</span> <span class="p">:</span> <span class="n">Attribute</span> <span class="p">{</span> <span class="p">}</span></code></pre></figure>
+
+<p>And how it is consumed you could see here:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="k">internal</span> <span class="k">class</span> <span class="nc">PIIValueProvider</span> <span class="p">:</span> <span class="n">IValueProvider</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="kt">object</span> <span class="n">_defaultValue</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="nf">PIIValueProvider</span><span class="p">(</span><span class="kt">string</span> <span class="n">defaultValue</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">_defaultValue</span> <span class="p">=</span> <span class="n">defaultValue</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="kt">object</span> <span class="nf">GetValue</span><span class="p">(</span><span class="kt">object</span> <span class="n">target</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">_defaultValue</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">SetValue</span><span class="p">(</span><span class="kt">object</span> <span class="n">target</span><span class="p">,</span> <span class="kt">object</span> <span class="k">value</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">NoPIILogContractResolver</span> <span class="p">:</span> <span class="n">DefaultContractResolver</span>
+<span class="p">{</span>
+    <span class="k">protected</span> <span class="k">override</span> <span class="n">IList</span><span class="p">&lt;</span><span class="n">JsonProperty</span><span class="p">&gt;</span> <span class="nf">CreateProperties</span><span class="p">(</span><span class="n">Type</span> <span class="n">type</span><span class="p">,</span> <span class="n">MemberSerialization</span> <span class="n">memberSerialization</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">properties</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">JsonProperty</span><span class="p">&gt;();</span>
+
+        <span class="kt">var</span> <span class="n">thereAreSomePropertiesToHide</span> <span class="p">=</span> <span class="n">type</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">true</span><span class="p">).</span><span class="nf">All</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="nf">GetType</span><span class="p">()</span> <span class="p">!=</span> <span class="k">typeof</span><span class="p">(</span><span class="n">SensitiveAttribute</span><span class="p">));</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">thereAreSomePropertiesToHide</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">var</span> <span class="n">props</span> <span class="p">=</span> <span class="k">base</span><span class="p">.</span><span class="nf">CreateProperties</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="n">memberSerialization</span><span class="p">);</span>
+            <span class="kt">var</span> <span class="n">excludedProperties</span> <span class="p">=</span> <span class="n">type</span>
+                <span class="p">.</span><span class="nf">GetProperties</span><span class="p">()</span>
+                <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">true</span><span class="p">).</span><span class="nf">Any</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="nf">GetType</span><span class="p">()</span> <span class="p">==</span> <span class="k">typeof</span><span class="p">(</span><span class="n">SensitiveAttribute</span><span class="p">)))</span>
+                <span class="p">.</span><span class="nf">Select</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span>
+                <span class="p">.</span><span class="nf">ToList</span><span class="p">();</span>
+
+            <span class="kt">var</span> <span class="n">excludedFields</span> <span class="p">=</span> <span class="n">type</span>
+                <span class="p">.</span><span class="nf">GetFields</span><span class="p">()</span>
+                <span class="p">.</span><span class="nf">Where</span><span class="p">(</span><span class="n">p</span> <span class="p">=&gt;</span> <span class="n">p</span><span class="p">.</span><span class="nf">GetCustomAttributes</span><span class="p">(</span><span class="k">true</span><span class="p">).</span><span class="nf">Any</span><span class="p">(</span><span class="n">t</span> <span class="p">=&gt;</span> <span class="n">t</span><span class="p">.</span><span class="nf">GetType</span><span class="p">()</span> <span class="p">==</span> <span class="k">typeof</span><span class="p">(</span><span class="n">SensitiveAttribute</span><span class="p">)))</span>
+                <span class="p">.</span><span class="nf">Select</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span>
+                <span class="p">.</span><span class="nf">ToList</span><span class="p">();</span>
+
+            <span class="kt">var</span> <span class="n">toExclude</span> <span class="p">=</span> <span class="n">excludedProperties</span><span class="p">.</span><span class="nf">Concat</span><span class="p">(</span><span class="n">excludedFields</span><span class="p">).</span><span class="nf">ToList</span><span class="p">();</span>
+
+            <span class="k">return</span> <span class="n">props</span>
+                <span class="p">.</span><span class="nf">Select</span><span class="p">(</span><span class="n">property</span> <span class="p">=&gt;</span>
+                    <span class="n">toExclude</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="n">property</span><span class="p">.</span><span class="n">PropertyName</span><span class="p">)</span>
+                        <span class="p">?</span> <span class="nf">HideValue</span><span class="p">(</span><span class="n">property</span><span class="p">)</span>
+                        <span class="p">:</span> <span class="n">property</span>
+                <span class="p">)</span>
+                <span class="p">.</span><span class="nf">ToList</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">properties</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">static</span> <span class="n">JsonProperty</span> <span class="nf">HideValue</span><span class="p">(</span><span class="n">JsonProperty</span> <span class="n">property</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">property</span><span class="p">.</span><span class="n">PropertyType</span> <span class="p">=</span> <span class="k">typeof</span><span class="p">(</span><span class="kt">string</span><span class="p">);</span>
+        <span class="n">property</span><span class="p">.</span><span class="n">ValueProvider</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">PIIValueProvider</span><span class="p">(</span><span class="s">"PII Data"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">property</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>We get an object we want to log to ApplicationInsights, we check all fields and properties if they should be hidden (based on an attribute) if so we change their value to <code class="highlighter-rouge">PII Data</code>. The above code works also for nested objects.</p>
+
+<p>We also need to include NoPIILogContractResolver to <code class="highlighter-rouge">IRequestDataAccessor</code> where we operate on JsonConvert, we did this like this:</p>
+
+<figure class="highlight"><pre><code class="language-csharp" data-lang="csharp"><span class="n">JsonConvert</span><span class="p">.</span><span class="nf">SerializeObject</span><span class="p">(</span><span class="n">argument</span><span class="p">.</span><span class="n">Value</span><span class="p">,</span>
+                        <span class="k">new</span> <span class="nf">JsonSerializerSettings</span><span class="p">()</span> <span class="p">{</span><span class="n">ContractResolver</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">NoPIILogContractResolver</span><span class="p">()})</span></code></pre></figure>
+
+<p>We run code once again and we could find records like this in ApplicationInsights:</p>
+
+<p><img src="https://mnie.github.com/img/02-09-2019AppInsights/new.png" alt="result3" />
+<img src="https://mnie.github.com/img/02-09-2019AppInsights/new2.png" alt="result2" /></p>
+
+<p>To sum up everything. In 3 very easy steps, we were able to add logging to ApplicationInsights which logs almost full request and response without any sensitive data (of course as long as a developer would mark all sensitive parts by attribute). But thanks to the above in a future we could more easily and faster encounter a problem with our application, which would help us save some time for other things. Only 1 thing to consider here is consumption of database under the hood for ApplicationInsights, maybe it would be a good idea to somehow limit the number of data logged per single request/response so some very big bodies wouldn’t be logged as a full but only in some small parts.</p>
+
+<p><a href="https://github.com/MNie/AppInsights.Enricher">Full code here</a></p>
+
+<p>Thanks for reading :)</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=AppInsights+logging+full+requests+with+hidding+sensitive+data%20-%20http://mnie.me/appinsightslogging%20by%20@mnie8" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://mnie.me/appinsightslogging" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+            <div id="disqus_thread" class="article-comments"></div>
+            <script src="https://chalk-1.disqus.com/embed.js" async defer></script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    2020
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-81299349-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-81299349-1');
+  </script>
+
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

@@ -1,4 +1,0 @@
----
-slug: elasticsearch
-name: ElasticSearch
----

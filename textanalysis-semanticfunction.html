@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>MNie | Azure Text Analytics Api - Are your users happy?</title>
+  <meta name="description" content="Azure Text Analytics Api gives us many opportunities, from text study to building recommendation systems. Api Text Analytics gives us the ability to detect sentiment, keywords, topics and the language in which text is written. In contrast, the above-mentioned function, examines the sentiment of the text. What does it mean? It can determine whether a statement/text has a positive or negative undertone. In this article I wanna show how to use that function">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Azure Text Analytics Api - Are your users happy?">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://mnie.me/textanalysis-semanticfunction">
+  <meta property="og:description" content="Azure Text Analytics Api gives us many opportunities, from text study to building recommendation systems. Api Text Analytics gives us the ability to detect sentiment, keywords, topics and the language in which text is written. In contrast, the above-mentioned function, examines the sentiment of the text. What does it mean? It can determine whether a statement/text has a positive or negative undertone. In this article I wanna show how to use that function">
+  <meta property="og:site_name" content="MNie">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://mnie.me/textanalysis-semanticfunction">
+  <meta name="twitter:title" content="Azure Text Analytics Api - Are your users happy?">
+  <meta name="twitter:description" content="Azure Text Analytics Api gives us many opportunities, from text study to building recommendation systems. Api Text Analytics gives us the ability to detect sentiment, keywords, topics and the language in which text is written. In contrast, the above-mentioned function, examines the sentiment of the text. What does it mean? It can determine whether a statement/text has a positive or negative undertone. In this article I wanna show how to use that function">
+
+  
+    
+      <meta property="og:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+      <meta name="twitter:image" content="http://mnie.me/assets/documentation/sample-image-0a264584b152aa8d86f61525d05ae1131787d0a1029aa1cb7e3e4148b5d34755.jpg">
+    
+  
+
+  <link href="http://mnie.me/feed.xml" type="application/rss+xml" rel="alternate" title="MNie Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8d94e1b2ced7d843d882416da48ad6b7a0386071412905b6048dbe8205e32559.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-03c296a876e33d932966817b36fde1212bdb044fb0585145cde98ac98da59715.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-52a5e7e150abd939a150d09a93ec31ffd219b9e01c09465a899f36f3654beef1.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="MNie">MNie</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/mnie8" rel="noreferrer noopener" target="_blank" title="Twitter">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-twitter">
+  <use href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter" xlink:href="/assets/twitter-8842c33965263ad1b03a978406826677a668f94125d5837e70ab83f24b3213a7.svg#icon-twitter"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://github.com/mnie" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://stackoverflow.com/users/2947860" rel="noreferrer noopener" target="_blank" title="Stack Overflow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-stackoverflow">
+  <use href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow" xlink:href="/assets/stackoverflow-12ba59133ed134d26156d30f095e0222b6039395cf26f2fab0cb6ce3ef2db00d.svg#icon-stackoverflow"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/michał-niegrzybowski" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="mailto:michal.niegrzybowski@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" rel="noreferrer noopener" target="_blank" title="RSS">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-rss">
+  <use href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss" xlink:href="/assets/rss-541ec5cea9cefd10d2fcfec01888f3f231a8829940249835fa7b7b3a12ae0d0d.svg#icon-rss"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Azure Text Analytics Api - Are your users happy?</h1>
+            <p>Azure Text Analytics Api gives us many opportunities, from text study to building recommendation systems. Api Text Analytics gives us the ability to detect sentiment, keywords, topics and the language in which text is written. In contrast, the above-mentioned function, examines the sentiment of the text. What does it mean? It can determine whether a statement/text has a positive or negative undertone. In this article I wanna show how to use that function</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    August 14, 2016
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      4 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/azure" title="See all posts with tag 'Azure'">Azure</a>
+    
+      
+      <a href="/tag/fsharp" title="See all posts with tag 'F#'">F#</a>
+    
+      
+      <a href="/tag/cognitiveservices" title="See all posts with tag 'Cognitive Services'">Cognitive Services</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>Hi,</p>
+
+<p>My first post I would like to dedicate Azure, namely the function sentiment from Text Analytics api, from module Cognitive Services, of which the last I heard.</p>
+
+<p><img src="https://mnie.github.com/img/AzureTextAnalyticSemantic/module.png" alt="Cognitive services module in azure" /></p>
+
+<p>The module itself gives us many opportunities, from text study to building recommendation systems.
+Api Text Analytics gives us the ability to detect sentiment, keywords, topics and the language in which text is written.
+In contrast, the above-mentioned function, examines the sentiment of the text. What does it mean? It can determine whether a statement/text has a positive or negative undertone.
+I decided it would be fun to test it and see how it works.</p>
+
+<p>So, where to start?
+First of all, we need to have an account on Azure. Then we need to add to it a Cognitive Services module.
+Now it would be nice to throw our data (comments, posts, text, whatever we want to check) and generate some results.</p>
+
+<p>But after that. First, we need to know what data format is accepted by the function. This format is json, formatted as follows:</p>
+
+<script src="https://gist.github.com/MNie/a2a75632038748f9fc502b805f9706fd.js"></script>
+
+<p>In short, ‘documents’ is a list containing information about the data. Single object in the list of ‘documents’ contain ‘id’ which is a unique identifier.
+‘Language’, which is the language of a text from the variable ‘text’ in the case of the English language it is not required, due to the fact that it is the default language.</p>
+
+<p>Okay, we know in what format data should be. So we go on. In my case, I have only comments that I have in the csv file, without any identifiers, so I’ll have to somehow generate it.
+For this purpose I wrote a piece of code below:</p>
+
+<script src="https://gist.github.com/MNie/60c0ae7de329a09a342e780af11f3d56.js"></script>
+
+<p>Type ‘requestJson’ defines the input data, while the function ‘createJson’ is responsible for converting input data in .csv file to format required by the API.
+As we can see, it accepts a sequence of lines from a csv file, and then converts the sequence to the sequence of ‘strings’ in the last step it converts it to a sequence of type ‘document’.
+By using the function ‘mapi’ I generated unique identifiers, super! I’ve also added the ability to save this JSON file (function saveJson).
+Comments in my case are in English, but I decided to arbitrarily set the attribute ‘language’ to ‘en’.</p>
+
+<p>We already have input, what now? Put it to the Azure! For this purpose I wrote a few more lines of code that sends the correct request to the Text Analytics API with properly formatted JSON.
+At this point we need a ‘api_key’, which can be found in the Cognitive Services module settings (it is shown on an image, where we can found it).</p>
+
+<p><img src="https://mnie.github.com/img/AzureTextAnalyticSemantic/api_key.png" alt="api_key" /></p>
+
+<script src="https://gist.github.com/MNie/85aebd24f5e1d14c3a7c744e661995f8.js"></script>
+
+<p>As we can see in the function ‘getSentimentScore’ it sends POST request, which in the header to the key ‘OCP-APIM-Subscription-Key’ assigned an ‘api_key’, while the body contains our JSON.
+Question is what will give us the api?</p>
+
+<p>It will give us the data in the following format:</p>
+
+<script src="https://gist.github.com/MNie/29a7fd3bf84393304c53f3c176235db3.js"></script>
+
+<p>It is worth stressing here that the ‘score’ can vary from 0 to 1, where if the value is greater the text has a more positive undertone. As for the return, it looks okay.
+We using the ‘id’ to link the result to the text, cool. But I would like to see in one object id, scores and text to which it relates, for this purpose I wrote another piece of code.</p>
+
+<script src="https://gist.github.com/MNie/98e33c95f331bd3807adf646fec81d67.js"></script>
+
+<p>So, this is exactly what I meant! This function ‘concatSentimentAndInput’ first calls function that converts my comments from a csv file, the method required by the sentiment Text Analytics API, and then calls a function to query api, finally, to connect the input JSON together with the return from Azure.
+In addition, at the end results are sorted in ascending order, so at the beginning there are of the ‘worst’ comments.</p>
+
+<p>That’s probably all. As a result, I have a small little script that converts my comments, it does request to Azure for their semantic evaluation, and finally returns to me a sorted result combined with a set of an input.</p>
+
+<p>Question is, is a sentiment function working properly? Amazingly, the result looks okay.
+Comments having a negative undertone have the lowest scores, while those positive indeed achieve a high rating, I did not notice any ‘irregularities in the operation of the module.’
+Here is an output from script:</p>
+
+<script src="https://gist.github.com/MNie/9441041ee13b29b2f1b5a929475abf33.js"></script>
+
+<p>Only puzzling is that the text ‘good’ has a higher rating from a ‘very good’ and ‘bad’ is worse than ‘very bad’ … :)</p>
+
+<p><img src="https://mnie.github.com/img/AzureTextAnalyticSemantic/good.png" alt="Image of good and very good" /></p>
+
+<p>To sum up, I would recommend anyone to try this function to determine how customers perceive your product(s), by examining their comments.
+In my case, the results came out really good and I’m going to use them in improving my applications.</p>
+
+<p>All code could be found <a href="https://github.com/MNie/AzureTextAnalysis">here</a>.</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=Azure+Text+Analytics+Api+-+Are+your+users+happy?%20-%20http://mnie.me/textanalysis-semanticfunction%20by%20@mnie8" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=http://mnie.me/textanalysis-semanticfunction" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+            <div id="disqus_thread" class="article-comments"></div>
+            <script src="https://chalk-1.disqus.com/embed.js" async defer></script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+          
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    2020
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-81299349-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-81299349-1');
+  </script>
+
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

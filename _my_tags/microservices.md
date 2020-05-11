@@ -1,4 +1,0 @@
----
-slug: microservices
-name: Microservices
----

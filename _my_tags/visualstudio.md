@@ -1,4 +1,0 @@
----
-slug: visualstudio
-name: VisualStudio
----

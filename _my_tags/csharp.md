@@ -1,4 +1,0 @@
----
-slug: csharp
-name: C#
----
